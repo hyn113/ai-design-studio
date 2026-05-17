@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Grid Drawing Pad</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell" id="appShell">
+    <section class="workspace" id="workspace" aria-label="Drawing workspace">
+      <canvas id="drawingCanvas" aria-label="Drawing canvas"></canvas>
+
+      <nav class="zoom-controls" aria-label="Zoom controls">
+        <button id="zoomOutButton" aria-label="Zoom out">−</button>
+        <span id="zoomLabel">100%</span>
+        <button id="zoomInButton" aria-label="Zoom in">+</button>
+        <button id="fitButton" class="fit-button">Fit</button>
+      </nav>
+    </section>
+
+    <aside class="control-panel" id="controlPanel" aria-label="Drawing controls">
+      <div class="panel-content" id="panelContent">
+        <header class="panel-header" id="panelHeader">
+          <div>
+            <p class="eyebrow">Drawing Score</p>
+            <h1>Controller</h1>
+          </div>
+          <button id="panelToggle" class="panel-toggle" aria-expanded="true" aria-controls="panelBody" aria-label="Collapse controller">
+            <span aria-hidden="true">−</span>
+          </button>
+        </header>
+
+        <div class="panel-body" id="panelBody">
+          <section class="toolbar-group">
+            <span class="toolbar-label">Color</span>
+            <div class="button-grid color-grid" id="colorPalette">
+              <button class="color-button is-active" data-color="yellow" aria-label="Yellow" title="Yellow"></button>
+              <button class="color-button" data-color="blue" aria-label="Blue" title="Blue"></button>
+              <button class="color-button" data-color="red" aria-label="Red" title="Red"></button>
+              <button class="color-button" data-color="green" aria-label="Green" title="Green"></button>
+              <button class="color-button" data-color="orange" aria-label="Orange" title="Orange"></button>
+              <button class="color-button" data-color="violet" aria-label="Violet" title="Violet"></button>
+              <button class="color-button light" data-color="white" aria-label="White" title="White"></button>
+              <button class="color-button" data-color="black" aria-label="Black" title="Black"></button>
+            </div>
+          </section>
+
+          <section class="toolbar-group">
+            <span class="toolbar-label">Tool</span>
+            <div class="button-grid tool-grid" id="toolButtons">
+              <button class="tool-button is-active" data-tool="dot">Dot</button>
+              <button class="tool-button" data-tool="line">Line</button>
+              <button class="tool-button" data-tool="plane">Plane</button>
+            </div>
+          </section>
+
+          <section class="toolbar-group actions">
+            <button id="clearButton" class="action-button">Clear</button>
+            <button id="sendButton" class="action-button primary">Done</button>
+          </section>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
