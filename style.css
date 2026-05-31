@@ -482,6 +482,14 @@ body.is-resizing {
 
 .compose-view.is-active {
   display: grid;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 66px;
+  bottom: 0;
+  z-index: 20;
+  height: auto;
+  background: #fff;
 }
 
 .timebar {

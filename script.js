@@ -637,6 +637,7 @@ function extendScoreIfNeeded() {
 }
 
 function setView(viewName) {
+  document.body.dataset.view = viewName;
   document.querySelectorAll('.view').forEach((view) => {
     view.classList.toggle('is-active', view.id === `${viewName}View`);
   });
@@ -644,6 +645,7 @@ function setView(viewName) {
     button.classList.toggle('is-active', button.dataset.view === viewName);
   });
   if (viewName !== 'compose' && isPlaying) stopPlayback();
+  if (viewName === 'compose') window.scrollTo({ top: 0, behavior: 'auto' });
   if (sidePanel?.classList.contains('is-open')) closeSidePanel();
   updateCursorHint();
 }
