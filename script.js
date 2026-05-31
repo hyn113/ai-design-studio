@@ -655,7 +655,11 @@ function initScrollReveals() {
     return;
   }
 
-  app?.classList.add('is-animated');
+  revealItems.forEach((item) => {
+    const rect = item.getBoundingClientRect();
+    const isInView = rect.top < window.innerHeight * 0.78 && rect.bottom > window.innerHeight * 0.18;
+    if (isInView) item.classList.add('is-visible');
+  });
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -667,6 +671,7 @@ function initScrollReveals() {
   });
 
   revealItems.forEach((item) => observer.observe(item));
+  window.requestAnimationFrame(() => app?.classList.add('is-animated'));
 }
 
 function initSoftSectionScroll() {
