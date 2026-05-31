@@ -358,7 +358,7 @@ function startPlayback() {
   playbackAnalysis = analyzeComposition();
   isPlaying = true;
   composeView.classList.add('is-playing');
-  playStep = 0;
+  playStep = getLoopBounds().start;
   playButton.textContent = 'Stop';
   playButton.classList.add('is-playing');
   playButton.setAttribute('aria-pressed', 'true');
@@ -369,13 +369,13 @@ function startPlayback() {
 function tickPlayback() {
   if (!isPlaying) return;
   const interval = getStepIntervalSeconds() * 1000;
-  const loopEndStep = getLoopEndStep();
+  const loopBounds = getLoopBounds();
   flashStep(playStep, false);
   playStep += 1;
-  if (playStep >= loopEndStep) {
+  if (playStep >= loopBounds.end) {
     playhead.style.setProperty('--progress', '100%');
     playTimer = window.setTimeout(() => {
-      playStep = 0;
+      playStep = loopBounds.start;
       tickPlayback();
     }, LOOP_GAP_MS);
     return;
@@ -383,9 +383,14 @@ function tickPlayback() {
   playTimer = window.setTimeout(tickPlayback, interval);
 }
 
-function getLoopEndStep() {
-  if (!composition.length) return STEP_COUNT;
-  return Math.max(...composition.map((item) => item.step + getSustainLength(item.noteId, item.step)));
+function getLoopBounds() {
+  if (!composition.length) return { start: 0, end: STEP_COUNT };
+  const starts = composition.map((item) => item.step);
+  const ends = composition.map((item) => item.step + getSustainLength(item.noteId, item.step));
+  return {
+    start: Math.min(...starts),
+    end: Math.max(...ends)
+  };
 }
 
 function flashStep(step, audition) {
@@ -393,7 +398,9 @@ function flashStep(step, audition) {
   document.querySelectorAll('.grid-cell').forEach((cell) => {
     cell.classList.toggle('is-playing', Number(cell.dataset.step) === step);
   });
-  playhead.style.setProperty('--progress', `${((step + 1) / STEP_COUNT) * 100}%`);
+  const loopBounds = isPlaying ? getLoopBounds() : { start: 0, end: STEP_COUNT };
+  const loopLength = Math.max(1, loopBounds.end - loopBounds.start);
+  playhead.style.setProperty('--progress', `${((step - loopBounds.start + 1) / loopLength) * 100}%`);
   if (audition || isPlaying) {
     active.forEach((item) => {
       if (!audition && step > 0 && hasNote(item.noteId, step - 1)) return;
