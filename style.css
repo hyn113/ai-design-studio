@@ -48,13 +48,13 @@ a,
 
 .custom-cursor {
   position: fixed;
-  left: 0;
-  top: 0;
+  left: -100px;
+  top: -100px;
   z-index: 1000;
   pointer-events: none;
   opacity: 0;
-  transform: translate3d(-100px, -100px, 0);
   transition: opacity 180ms ease;
+  mix-blend-mode: difference;
 }
 
 .custom-cursor.is-visible {
@@ -68,9 +68,7 @@ a,
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.01);
-  backdrop-filter: invert(1);
-  -webkit-backdrop-filter: invert(1);
+  background: #fff;
 }
 
 .cursor-hint {

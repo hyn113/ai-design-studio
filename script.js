@@ -736,7 +736,8 @@ function initCustomCursor() {
 
   window.addEventListener('pointermove', (event) => {
     customCursor.classList.add('is-visible');
-    customCursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
+    customCursor.style.left = `${event.clientX}px`;
+    customCursor.style.top = `${event.clientY}px`;
   });
 
   window.addEventListener('pointerleave', () => {
