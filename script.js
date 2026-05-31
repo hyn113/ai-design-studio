@@ -28,25 +28,71 @@ const palettes = {
     name: 'Bright rhythmic tone',
     vars: ['#fff7ad', '#f4f4f4', '#ffffff'],
     marks: ['#ffd92f', '#ff3f55', '#2a8bdc', '#32c6c2'],
-    sphere: ['#fff4a5', '#bdf569', '#ffb36f', '#f6f6f6']
+    sphere: ['#fff4a5', '#bdf569', '#ffb36f', '#f6f6f6'],
+    motion: { gradient: 7600, shape: 8200 }
+  },
+  playful: {
+    name: 'Playful sparkling tone',
+    vars: ['#fff8c8', '#f8fbff', '#ffffff'],
+    marks: ['#ffe25a', '#7fdcff', '#ff8a68', '#b8f272'],
+    sphere: ['#fff1a0', '#b8f272', '#75d7ff', '#ff9879'],
+    motion: { gradient: 6800, shape: 7600 }
+  },
+  airy: {
+    name: 'Airy floating tone',
+    vars: ['#edf9ff', '#f8fff9', '#ffffff'],
+    marks: ['#bfefff', '#d9f8ef', '#c7d9ff', '#ffffff'],
+    sphere: ['#dff8ff', '#c9f4e2', '#cbd9ff', '#ffffff'],
+    motion: { gradient: 12400, shape: 13200 }
   },
   moon: {
     name: 'Slow blue tone',
     vars: ['#dcecff', '#f6f9ff', '#ffffff'],
     marks: ['#6f9fe7', '#a9c8ff', '#d7e7ff', '#5579b9'],
-    sphere: ['#dbeaff', '#9dbdff', '#7b75c9', '#f7f8ff']
+    sphere: ['#dbeaff', '#9dbdff', '#7b75c9', '#f7f8ff'],
+    motion: { gradient: 13200, shape: 14200 }
+  },
+  dreamy: {
+    name: 'Dreamy blended tone',
+    vars: ['#f0ecff', '#f6fbff', '#ffffff'],
+    marks: ['#cab7ff', '#bdeeff', '#d8f7df', '#f4f2ff'],
+    sphere: ['#cbb9ff', '#bfeeff', '#d8f6df', '#f5f1ff'],
+    motion: { gradient: 14800, shape: 15800 }
+  },
+  deep: {
+    name: 'Deep grounded tone',
+    vars: ['#dce4f2', '#f8f8fb', '#ffffff'],
+    marks: ['#31517c', '#6c63a8', '#a8b7c9', '#d6dde8'],
+    sphere: ['#34537f', '#6e65a8', '#9dadc1', '#e2e8f0'],
+    motion: { gradient: 14200, shape: 15400 }
+  },
+  layered: {
+    name: 'Layered harmonic tone',
+    vars: ['#eef5ff', '#fff7eb', '#ffffff'],
+    marks: ['#70cde6', '#f6c46d', '#8a72e8', '#f5f1ff'],
+    sphere: ['#7fd4e8', '#ffd37d', '#957df0', '#eef5ff'],
+    motion: { gradient: 9800, shape: 11200 }
+  },
+  ascending: {
+    name: 'Rising clear tone',
+    vars: ['#effaff', '#f7fff0', '#ffffff'],
+    marks: ['#92e7ff', '#a6f06f', '#fff06a', '#ffffff'],
+    sphere: ['#9be9ff', '#b5f47b', '#fff06f', '#ffffff'],
+    motion: { gradient: 8800, shape: 9800 }
   },
   warm: {
     name: 'Warm balanced tone',
     vars: ['#fff0dc', '#f7f7f7', '#ffffff'],
     marks: ['#ff9d2e', '#f15b48', '#e7c62f', '#5aa576'],
-    sphere: ['#ffe4b8', '#ffb0a7', '#f7d76f', '#f4f4f4']
+    sphere: ['#ffe4b8', '#ffb0a7', '#f7d76f', '#f4f4f4'],
+    motion: { gradient: 10400, shape: 10800 }
   },
   sparse: {
     name: 'Quiet sparse tone',
     vars: ['#f6f6f6', '#ffffff', '#eef3f1'],
     marks: ['#c8ddd7', '#f1d7cf', '#90b7a9', '#efe681'],
-    sphere: ['#eeeeee', '#d8e6e0', '#f1d7cf', '#ffffff']
+    sphere: ['#eeeeee', '#d8e6e0', '#f1d7cf', '#ffffff'],
+    motion: { gradient: 15600, shape: 16600 }
   }
 };
 
@@ -159,12 +205,34 @@ function analyzeComposition() {
   const averageGap = activeSteps.length > 1
     ? activeSteps.slice(1).reduce((sum, step, index) => sum + step - activeSteps[index], 0) / (activeSteps.length - 1)
     : STEP_COUNT;
+  const averagePitch = noteIndexes.length
+    ? noteIndexes.reduce((sum, index) => sum + index, 0) / noteIndexes.length
+    : notes.length / 2;
+  const pitchSpread = noteIndexes.length
+    ? Math.max(...noteIndexes) - Math.min(...noteIndexes)
+    : 0;
+  const sustainedStarts = composition.filter((item) => !hasNote(item.noteId, item.step - 1));
+  const sustainLengths = sustainedStarts.map((item) => getSustainLength(item.noteId, item.step));
+  const averageLength = sustainLengths.length
+    ? sustainLengths.reduce((sum, length) => sum + length, 0) / sustainLengths.length
+    : 1;
   const repetition = getMostRepeatedNote();
   const chordSteps = activeSteps.filter((step) => composition.filter((item) => item.step === step).length >= 2).length;
-  const rhythmic = density > 0.34 || averageGap <= 2;
-  const moonlike = density < 0.24 && lowRatio >= highRatio && averageGap >= 3;
-  const sparse = density < 0.14;
-  const paletteKey = rhythmic ? 'bright' : moonlike ? 'moon' : sparse ? 'sparse' : 'warm';
+  const chordRatio = chordSteps / Math.max(1, activeSteps.length);
+  const contour = getPitchContour(activeSteps);
+  const paletteKey = choosePaletteKey({
+    density,
+    activity,
+    highRatio,
+    lowRatio,
+    averageGap,
+    averagePitch,
+    pitchSpread,
+    averageLength,
+    chordRatio,
+    contour,
+    repetition
+  });
 
   return {
     activeSteps,
@@ -173,11 +241,62 @@ function analyzeComposition() {
     highRatio,
     lowRatio,
     averageGap,
+    averagePitch,
+    pitchSpread,
+    averageLength,
     repetition,
     chordSteps,
+    chordRatio,
+    contour,
     palette: palettes[paletteKey],
     paletteKey
   };
+}
+
+function getPitchContour(activeSteps) {
+  const stepCenters = activeSteps.map((step) => {
+    const indexes = composition
+      .filter((item) => item.step === step)
+      .map((item) => notes.findIndex((note) => note.id === item.noteId))
+      .filter((index) => index >= 0);
+    return {
+      step,
+      pitch: indexes.reduce((sum, index) => sum + index, 0) / Math.max(1, indexes.length)
+    };
+  });
+
+  if (stepCenters.length < 2) return 0;
+  return stepCenters.slice(1).reduce((sum, current, index) => {
+    return sum + stepCenters[index].pitch - current.pitch;
+  }, 0) / (stepCenters.length - 1);
+}
+
+function choosePaletteKey(features) {
+  const {
+    density,
+    activity,
+    highRatio,
+    lowRatio,
+    averageGap,
+    averagePitch,
+    pitchSpread,
+    averageLength,
+    chordRatio,
+    contour,
+    repetition
+  } = features;
+
+  if (!composition.length) return 'sparse';
+  if (density < 0.1 || activity < 0.08) return 'sparse';
+  if (chordRatio >= 0.42 || (pitchSpread >= 12 && averageLength >= 2.4)) return 'layered';
+  if (lowRatio > 0.48 && averageLength >= 2.2) return 'deep';
+  if (contour > 1.1 && highRatio >= 0.26) return 'ascending';
+  if (highRatio > 0.52 && averageGap <= 2.8) return 'playful';
+  if (averageLength >= 3.2 && pitchSpread >= 8) return 'dreamy';
+  if (averagePitch < notes.length * 0.42 && averageGap >= 3.2) return 'airy';
+  if (density > 0.28 || averageGap <= 2.2 || (repetition && repetition.count >= 4)) return 'bright';
+  if (lowRatio >= highRatio && averageGap >= 3) return 'moon';
+  return 'warm';
 }
 
 function renderAnalysis(activeStep = -1) {
@@ -230,8 +349,8 @@ function renderMoodBlob(analysis, activeStep = -1) {
   blob.style.setProperty('--mark-color-2', color2);
   blob.style.setProperty('--mark-color-3', color3);
   blob.style.setProperty('--mark-color-4', color4);
-  blob.style.setProperty('--gradient-duration', `${analysis.paletteKey === 'bright' ? 7600 : analysis.paletteKey === 'moon' ? 13200 : 10400}ms`);
-  blob.style.setProperty('--shape-duration', `${analysis.paletteKey === 'bright' ? 8200 : analysis.paletteKey === 'moon' ? 14200 : 10800}ms`);
+  blob.style.setProperty('--gradient-duration', `${analysis.palette.motion?.gradient || 10400}ms`);
+  blob.style.setProperty('--shape-duration', `${analysis.palette.motion?.shape || 10800}ms`);
 }
 
 function getMoodSphereColors(analysis, sequenceLength, chordCount = 0) {
@@ -452,32 +571,59 @@ function stopCaptionCycle() {
 
 function getMoodPhrases(analysis) {
   if (!composition.length) return ['Place notes to hear a visual mood.'];
-  if (analysis.paletteKey === 'bright') {
-    return [
+  const phraseMap = {
+    bright: [
       'This piece feels bright and awake.',
       'It suggests sunlight, quick steps, and clear air.',
       'Short notes create a vivid yellow-green rhythm.'
-    ];
-  }
-  if (analysis.paletteKey === 'moon') {
-    return [
+    ],
+    playful: [
+      'This piece feels playful and sparkling.',
+      'High notes jump lightly across the rhythm.',
+      'It feels like small lights flickering in motion.'
+    ],
+    airy: [
+      'This piece feels airy and open.',
+      'The higher tones leave space around each sound.',
+      'It moves like a light breeze through clear space.'
+    ],
+    moon: [
       'This piece feels slow and blue.',
       'It brings to mind rain on a quiet night.',
       'Longer notes leave a soft afterimage.'
-    ];
-  }
-  if (analysis.paletteKey === 'sparse') {
-    return [
+    ],
+    dreamy: [
+      'This piece feels dreamy and floating.',
+      'Long tones blend into soft blue and violet layers.',
+      'The melody drifts rather than landing sharply.'
+    ],
+    deep: [
+      'This piece feels deep and grounded.',
+      'Low tones press downward with a calm weight.',
+      'The mood becomes darker, slower, and more concentrated.'
+    ],
+    layered: [
+      'This piece feels layered and harmonic.',
+      'Overlapping notes create transparent color fields.',
+      'Several tones merge into one blended atmosphere.'
+    ],
+    ascending: [
+      'This piece feels rising and clear.',
+      'The melody moves upward with a bright pull.',
+      'Its shape feels like color lifting through the air.'
+    ],
+    warm: [
+      'This piece feels warm and balanced.',
+      'It suggests a calm room after sunset.',
+      'The rhythm moves gently without rushing.'
+    ],
+    sparse: [
       'This piece feels minimal and spacious.',
       'Silence becomes part of the composition.',
       'The visual mood stays pale and restrained.'
-    ];
-  }
-  return [
-    'This piece feels warm and balanced.',
-    'It suggests a calm room after sunset.',
-    'The rhythm moves gently without rushing.'
-  ];
+    ]
+  };
+  return phraseMap[analysis.paletteKey] || phraseMap.warm;
 }
 
 function clearComposition() {
