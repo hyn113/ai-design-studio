@@ -685,8 +685,7 @@ body.is-resizing {
   height: var(--h);
   overflow: hidden;
   background: color-mix(in srgb, var(--mark-color-4), #ffffff 12%);
-  border-radius: 50%;
-  clip-path: circle(50% at 50% 50%);
+  border-radius: 48% 52% 51% 49% / 48% 45% 55% 52%;
   opacity: var(--opacity);
   transform: translate(-50%, -50%) rotate(var(--rotate));
   mix-blend-mode: normal;
@@ -695,15 +694,15 @@ body.is-resizing {
     inset -18px -22px 46px rgba(103, 58, 156, 0.1),
     inset 18px 16px 38px rgba(255, 255, 255, 0.38),
     0 0 0 1px rgba(255, 255, 255, 0.22);
-  animation: none;
-  will-change: auto;
+  animation: organicBlob var(--shape-duration, 10800ms) ease-in-out infinite alternate;
+  will-change: border-radius;
 }
 
 .mark::before {
   content: "";
   position: absolute;
-  inset: -72%;
-  border-radius: 50%;
+  inset: -92%;
+  border-radius: inherit;
   background:
     radial-gradient(circle at 16% 28%, color-mix(in srgb, var(--mark-color), white 4%) 0 14%, transparent 34%),
     radial-gradient(circle at 72% 18%, color-mix(in srgb, var(--mark-color-2), white 8%) 0 16%, transparent 36%),
@@ -722,7 +721,7 @@ body.is-resizing {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 50%;
+  border-radius: inherit;
   background:
     radial-gradient(circle at 24% 40%, rgba(255, 255, 255, 0.42), transparent 16%),
     linear-gradient(126deg, rgba(255, 255, 255, 0.36), transparent 44%);
@@ -766,7 +765,7 @@ body.is-resizing {
 }
 
 .mark.is-sustain {
-  border-radius: 50%;
+  border-radius: 48% 52% 51% 49% / 48% 45% 55% 52%;
 }
 
 @keyframes organicBlob {
