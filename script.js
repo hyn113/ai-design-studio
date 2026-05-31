@@ -369,9 +369,10 @@ function startPlayback() {
 function tickPlayback() {
   if (!isPlaying) return;
   const interval = getStepIntervalSeconds() * 1000;
+  const loopEndStep = getLoopEndStep();
   flashStep(playStep, false);
   playStep += 1;
-  if (playStep >= STEP_COUNT) {
+  if (playStep >= loopEndStep) {
     playhead.style.setProperty('--progress', '100%');
     playTimer = window.setTimeout(() => {
       playStep = 0;
@@ -380,6 +381,11 @@ function tickPlayback() {
     return;
   }
   playTimer = window.setTimeout(tickPlayback, interval);
+}
+
+function getLoopEndStep() {
+  if (!composition.length) return STEP_COUNT;
+  return Math.max(...composition.map((item) => item.step + getSustainLength(item.noteId, item.step)));
 }
 
 function flashStep(step, audition) {
