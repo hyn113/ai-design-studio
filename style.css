@@ -1032,12 +1032,12 @@ body.is-resizing {
 
 @media (max-width: 980px) {
   .compose-view {
-    height: auto;
-    min-height: calc(100dvh - 66px);
+    height: calc(100dvh - 66px);
+    min-height: 0;
   }
 
   .workspace {
-    min-height: 66vh;
+    min-height: 0;
   }
 
   .analysis-panel {
