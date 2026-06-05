@@ -586,17 +586,7 @@ body.is-resizing {
 }
 
 .grid-cell.is-playing::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 42%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: rgba(17, 17, 17, 0.12);
-  transform: translate(-50%, -50%) scale(0.72);
-  pointer-events: none;
-  animation: playCellPulse 520ms ease-out forwards;
+  content: none;
 }
 
 .grid-cell:focus-visible {
@@ -723,41 +713,39 @@ body.is-resizing {
   width: var(--w);
   height: var(--h);
   overflow: hidden;
-  isolation: isolate;
-  contain: paint;
   background: color-mix(in srgb, var(--mark-color-4), #ffffff 12%);
-  border-radius: 50%;
-  clip-path: circle(50% at 50% 50%);
+  border-radius: 48% 52% 51% 49% / 48% 45% 55% 52%;
+  clip-path: inset(0 round 48% 52% 51% 49% / 48% 45% 55% 52%);
   opacity: var(--opacity);
   transform: translate(-50%, -50%) rotate(var(--rotate));
   mix-blend-mode: normal;
   filter: saturate(1.04);
+  contain: paint;
   box-shadow:
     inset -18px -22px 46px rgba(103, 58, 156, 0.1),
     inset 18px 16px 38px rgba(255, 255, 255, 0.38),
     0 0 0 1px rgba(255, 255, 255, 0.22);
   animation: organicBlob var(--shape-duration, 10800ms) ease-in-out infinite alternate;
-  will-change: border-radius;
+  will-change: border-radius, clip-path;
 }
 
 .mark::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -92%;
   border-radius: inherit;
   background:
-    radial-gradient(circle at 18% 30%, color-mix(in srgb, var(--mark-color), white 6%) 0 16%, transparent 38%),
-    radial-gradient(circle at 74% 20%, color-mix(in srgb, var(--mark-color-2), white 10%) 0 18%, transparent 40%),
-    radial-gradient(circle at 82% 78%, color-mix(in srgb, var(--mark-color-3), white 8%) 0 18%, transparent 42%),
-    radial-gradient(circle at 28% 82%, color-mix(in srgb, var(--mark-color-4), white 6%) 0 18%, transparent 40%),
-    radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--mark-color-2), var(--mark-color-3) 48%) 0 26%, transparent 48%),
+    radial-gradient(circle at 16% 28%, color-mix(in srgb, var(--mark-color), white 4%) 0 14%, transparent 34%),
+    radial-gradient(circle at 72% 18%, color-mix(in srgb, var(--mark-color-2), white 8%) 0 16%, transparent 36%),
+    radial-gradient(circle at 86% 76%, color-mix(in srgb, var(--mark-color-3), white 6%) 0 16%, transparent 38%),
+    radial-gradient(circle at 26% 82%, color-mix(in srgb, var(--mark-color-4), white 4%) 0 16%, transparent 36%),
+    radial-gradient(circle at 48% 50%, color-mix(in srgb, var(--mark-color-2), var(--mark-color-3) 48%) 0 22%, transparent 44%),
     linear-gradient(120deg, var(--mark-color), var(--mark-color-4), var(--mark-color-2), var(--mark-color-3));
-  background-size: 150% 150%, 145% 145%, 150% 150%, 140% 140%, 130% 130%, 180% 180%;
-  background-position: 18% 20%, 72% 18%, 82% 76%, 28% 84%, 50% 50%, 0% 50%;
-  filter: saturate(1.16);
-  transform: none;
+  background-size: 100% 100%;
+  filter: blur(30px) saturate(1.2);
+  transform: translate3d(-18%, -14%, 0) rotate(0deg) scale(1.2);
   animation: gradientFlow var(--gradient-duration, 10400ms) ease-in-out infinite alternate;
-  will-change: background-position;
+  will-change: transform;
 }
 
 .mark::after {
@@ -808,150 +796,47 @@ body.is-resizing {
 }
 
 .mark.is-sustain {
-  border-radius: 50%;
-}
-
-.mark-ring,
-.mark-particle {
-  position: absolute;
-  z-index: 1;
-  left: 50%;
-  top: 39%;
-  pointer-events: none;
-}
-
-.mark-ring {
-  width: 280px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--mark-color-2, #ff7600), transparent 68%);
-  background: radial-gradient(circle, transparent 54%, color-mix(in srgb, var(--mark-color-2, #ff7600), transparent 86%) 55%, transparent 70%);
-  opacity: 0.62;
-  transform: translate(-50%, -50%) scale(calc(var(--beat-scale, 1) * 0.9));
-  animation: visualRing 2200ms ease-in-out infinite;
-}
-
-.ring-two {
-  width: 356px;
-  border-color: color-mix(in srgb, var(--mark-color-3, #9aaeff), transparent 76%);
-  animation-duration: 3400ms;
-  animation-delay: -900ms;
-  opacity: 0.42;
-}
-
-.mark-particle {
-  width: 10px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--mark-color, #ff7600), white 8%);
-  opacity: 0.68;
-  transform: translate(-50%, -50%);
-  animation: visualParticle 2600ms ease-in-out infinite alternate;
-}
-
-.particle-one {
-  left: 32%;
-  top: var(--particle-y, 48%);
-}
-
-.particle-two {
-  left: 68%;
-  top: calc(var(--particle-y, 48%) + 16%);
-  width: 8px;
-  background: color-mix(in srgb, var(--mark-color-2, #ff7600), white 10%);
-  animation-delay: -700ms;
-}
-
-.particle-three {
-  left: 57%;
-  top: calc(var(--particle-y, 48%) - 17%);
-  width: 6px;
-  background: color-mix(in srgb, var(--mark-color-3, #9aaeff), white 8%);
-  animation-delay: -1300ms;
-}
-
-.visual-stage.has-active-sound .mark {
-  transform: translate(-50%, -50%) rotate(var(--rotate)) scale(var(--beat-scale, 1));
-  transition: transform 280ms ease;
-}
-
-.visual-stage.has-active-sound .mark-ring {
-  opacity: 0.74;
-}
-
-
-@keyframes playCellPulse {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.44);
-  }
-
-  44% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-
-  100% {
-    opacity: 0.2;
-    transform: translate(-50%, -50%) scale(0.72);
-  }
-}
-
-@keyframes visualRing {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(calc(var(--beat-scale, 1) * 0.82));
-  }
-
-  50% {
-    transform: translate(-50%, -50%) scale(calc(var(--beat-scale, 1) * 1.04));
-  }
-}
-
-@keyframes visualParticle {
-  0% {
-    opacity: 0.38;
-    transform: translate(-50%, -50%) translate3d(-12px, 10px, 0) scale(0.86);
-  }
-
-  100% {
-    opacity: 0.78;
-    transform: translate(-50%, -50%) translate3d(14px, -12px, 0) scale(1.12);
-  }
+  border-radius: 48% 52% 51% 49% / 48% 45% 55% 52%;
+  clip-path: inset(0 round 48% 52% 51% 49% / 48% 45% 55% 52%);
 }
 
 @keyframes organicBlob {
   0% {
     border-radius: 46% 54% 52% 48% / 48% 44% 56% 52%;
+    clip-path: inset(0 round 46% 54% 52% 48% / 48% 44% 56% 52%);
   }
 
   35% {
     border-radius: 55% 45% 47% 53% / 42% 55% 45% 58%;
+    clip-path: inset(0 round 55% 45% 47% 53% / 42% 55% 45% 58%);
   }
 
   70% {
     border-radius: 43% 57% 56% 44% / 55% 43% 57% 45%;
+    clip-path: inset(0 round 43% 57% 56% 44% / 55% 43% 57% 45%);
   }
 
   100% {
     border-radius: 52% 48% 45% 55% / 46% 58% 42% 54%;
+    clip-path: inset(0 round 52% 48% 45% 55% / 46% 58% 42% 54%);
   }
 }
 
 @keyframes gradientFlow {
   0% {
-    background-position: 18% 20%, 72% 18%, 82% 76%, 28% 84%, 50% 50%, 0% 50%;
+    transform: translate3d(-26%, -18%, 0) rotate(0deg) scale(1.24);
   }
 
   33% {
-    background-position: 30% 34%, 62% 24%, 72% 66%, 36% 72%, 56% 46%, 45% 50%;
+    transform: translate3d(22%, -11%, 0) rotate(18deg) scale(1.34);
   }
 
   66% {
-    background-position: 24% 58%, 82% 38%, 70% 84%, 18% 64%, 44% 58%, 82% 50%;
+    transform: translate3d(14%, 24%, 0) rotate(-14deg) scale(1.3);
   }
 
   100% {
-    background-position: 16% 32%, 68% 54%, 84% 70%, 34% 88%, 52% 42%, 100% 50%;
+    transform: translate3d(-20%, 18%, 0) rotate(24deg) scale(1.32);
   }
 }
 

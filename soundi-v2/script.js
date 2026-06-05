@@ -453,17 +453,10 @@ function renderAnalysis(activeStep = -1) {
 }
 
 function renderMoodBlob(analysis, activeStep = -1) {
-  if (!visualMarks.querySelector('.mood-core')) {
-    visualMarks.innerHTML = [
-      '<span class="mark mood-core"></span>',
-      '<span class="mark-ring ring-one"></span>',
-      '<span class="mark-ring ring-two"></span>',
-      '<span class="mark-particle particle-one"></span>',
-      '<span class="mark-particle particle-two"></span>',
-      '<span class="mark-particle particle-three"></span>'
-    ].join('');
+  if (!visualMarks.querySelector('.mark')) {
+    visualMarks.innerHTML = '<span class="mark"></span>';
   }
-  const blob = visualMarks.querySelector('.mood-core');
+  const blob = visualMarks.querySelector('.mark');
   const soundingItems = isPlaying
     ? composition.filter((item) => {
       const sequenceLength = getSustainLength(item.noteId, item.step);
@@ -473,26 +466,14 @@ function renderMoodBlob(analysis, activeStep = -1) {
     : [];
   const activeItems = soundingItems.length ? soundingItems : composition;
   const noteIndexes = activeItems.map((item) => notes.findIndex((note) => note.id === item.noteId)).filter((index) => index >= 0);
-  const averageNoteIndex = noteIndexes.length
-    ? noteIndexes.reduce((sum, index) => sum + index, 0) / noteIndexes.length
-    : (notes.length - 1) / 2;
   const activeLengths = activeItems.map((item) => getSustainLength(item.noteId, item.step));
   const averageLength = activeLengths.length
     ? activeLengths.reduce((sum, length) => sum + length, 0) / activeLengths.length
     : 2;
   const chordCount = activeStep >= 0 ? composition.filter((item) => item.step === activeStep).length : analysis.chordSteps;
   const [color, color2, color3, color4] = getMoodSphereColors(analysis, averageLength, chordCount);
-  visualStage.style.setProperty('--mark-color', color);
-  visualStage.style.setProperty('--mark-color-2', color2);
-  visualStage.style.setProperty('--mark-color-3', color3);
-  visualStage.style.setProperty('--mark-color-4', color4);
-  const pitchLift = noteIndexes.length ? 1 - (averageNoteIndex / Math.max(1, notes.length - 1)) : 0.5;
-  const beatScale = Math.min(1.28, 0.94 + (chordCount * 0.08) + (averageLength * 0.025));
-  visualStage.style.setProperty('--beat-scale', beatScale.toFixed(2));
-  visualStage.style.setProperty('--particle-y', `${68 - pitchLift * 42}%`);
-  visualStage.classList.toggle('has-active-sound', soundingItems.length > 0);
 
-  blob.className = `mark mood-core mood-${analysis.paletteKey}`;
+  blob.className = `mark mood-${analysis.paletteKey}`;
   blob.style.setProperty('--x', '50%');
   blob.style.setProperty('--y', '39%');
   blob.style.setProperty('--w', '248px');
