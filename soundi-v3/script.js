@@ -637,7 +637,7 @@ function renderMoodBlob(analysis, activeStep = -1) {
 
   blob.className = `mark mood-${analysis.paletteKey}`;
   blob.style.setProperty('--x', '50%');
-  blob.style.setProperty('--y', '28%');
+  blob.style.setProperty('--y', '34%');
   blob.style.setProperty('--w', '248px');
   blob.style.setProperty('--h', '248px');
   blob.style.setProperty('--rotate', '0deg');

@@ -866,7 +866,7 @@ body.is-resizing {
 .visual-caption {
   position: absolute;
   left: 50%;
-  top: calc(28% + 142px);
+  top: calc(34% + 142px);
   z-index: 4;
   width: min(82%, 380px);
   max-width: none;
