@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>soundi v3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=20260607-v3-curation-center" />
+</head>
+<body>
+  <main class="app">
+    <header class="site-header" aria-label="site header">
+      <button class="wordmark nav-button is-active" type="button" data-view="home" aria-label="soundi home">
+        soundi
+      </button>
+      <nav class="nav" aria-label="primary navigation">
+        <button class="nav-button" type="button" data-view="compose">Compose</button>
+        <button class="nav-button" type="button" data-view="archive">Archive</button>
+      </nav>
+    </header>
+
+    <section id="homeView" class="view home-view is-active" aria-label="home">
+      <div class="hero reveal">
+        <h1>See Music.<br />Compose Visually.</h1>
+      </div>
+
+      <section class="tutorial" id="tutorial" aria-label="tutorial preview">
+        <article class="pitch-step reveal">
+          <div class="pitch-demo pitch-demo-high" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <p>Higher position means higher pitch.</p>
+        </article>
+
+        <article class="pitch-step reveal">
+          <div class="pitch-demo pitch-demo-low" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <p>Lower position means lower pitch.</p>
+        </article>
+
+        <article class="note-row reveal">
+          <div class="note-scale" aria-hidden="true">
+            <span style="--note:#ff3b30">C</span>
+            <span style="--note:#ff7a00">D</span>
+            <span style="--note:#ffdc21">E</span>
+            <span style="--note:#00c900">F</span>
+            <span style="--note:#65d2ee">G</span>
+            <span style="--note:#3f6df6">A</span>
+            <span style="--note:#854cf5">B</span>
+          </div>
+          <p>Each row represents a different note.</p>
+        </article>
+
+        <article class="grid-explain reveal">
+          <div class="large-grid" aria-hidden="true">
+            <span class="grid-block block-green"></span>
+            <span class="grid-block block-orange"></span>
+            <span class="grid-block block-purple"></span>
+          </div>
+          <p class="grid-copy">
+            The grid shows time and pitch.<br />
+            Place blocks to compose.<br />
+          </p>
+        </article>
+
+        <article class="ready-section reveal">
+          <p>Your composition becomes a visual rhythm.</p>
+          <button class="ready-button" type="button" data-view="compose">Ready to compose?</button>
+        </article>
+      </section>
+    </section>
+
+    <section id="composeView" class="view compose-view" aria-label="compose">
+      <section class="timebar" aria-label="time indicator">
+        <div class="time-track">
+          <span id="playhead" class="playhead"></span>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="compose-tools" aria-label="composition tools">
+          <button id="guideButton" class="tool-button is-active" type="button" aria-pressed="true">Harmony Guide</button>
+          <div id="harmonyTypeControl" class="harmony-type-control">
+            <button id="harmonyTypeButton" class="tool-button harmony-type-button" type="button" aria-haspopup="true" aria-expanded="false">Major Triad</button>
+            <div id="harmonyTypeMenu" class="harmony-type-menu" role="menu" hidden>
+              <button type="button" role="menuitemradio" data-harmony-type="major" aria-checked="true">Major Triad</button>
+              <button type="button" role="menuitemradio" data-harmony-type="minor" aria-checked="false">Minor Triad</button>
+              <button type="button" role="menuitemradio" data-harmony-type="suspended" aria-checked="false">Suspended Chord</button>
+              <button type="button" role="menuitemradio" data-harmony-type="fifth" aria-checked="false">Perfect Fifth</button>
+              <button type="button" role="menuitemradio" data-harmony-type="octave" aria-checked="false">Octave</button>
+            </div>
+          </div>
+          <div id="tensionControl" class="harmony-type-control tension-control">
+            <button id="tensionButton" class="tool-button harmony-type-button tension-button" type="button" aria-haspopup="true" aria-expanded="false">Tension Off</button>
+            <div id="tensionMenu" class="harmony-type-menu tension-menu" role="menu" hidden>
+              <button type="button" role="menuitemradio" data-tension-type="none" aria-checked="true">Tension Off</button>
+              <button type="button" role="menuitemradio" data-tension-type="major7" aria-checked="false">Major 7</button>
+              <button type="button" role="menuitemradio" data-tension-type="add9" aria-checked="false">Add 9</button>
+            </div>
+          </div>
+          <button id="exampleButton" class="tool-button" type="button" aria-pressed="false">Examples</button>
+        </div>
+
+        <section class="composition-panel" aria-label="composition grid">
+          <div class="score-scroll">
+            <div class="score-frame">
+              <div id="pitchKeyboard" class="pitch-keyboard" aria-hidden="true"></div>
+              <div id="scoreGrid" class="score-grid"></div>
+              <div id="gridPlayhead" class="grid-playhead" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+
+        <button id="middleNotesButton" class="middle-notes-button" type="button" aria-label="Back to middle notes">Middle</button>
+
+        <aside class="analysis-panel" aria-label="visual analysis">
+          <div id="resizeHandle" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="resize visual feedback"></div>
+          <section id="visualStage" class="visual-stage">
+            <div id="visualTone" class="visual-tone"></div>
+            <div id="visualMarks" class="visual-marks"></div>
+            <div id="moodMetrics" class="mood-metrics" aria-hidden="true"></div>
+            <p id="visualCaption" class="visual-caption"></p>
+          </section>
+          <section id="feedbackCard" class="feedback-card"></section>
+        </aside>
+      </section>
+
+      <footer class="controlbar">
+        <div class="track-meta">
+          <span id="exampleName" class="example-name" aria-live="polite" tabindex="0"></span>
+          <span id="compositionDuration" class="composition-duration">00:00</span>
+        </div>
+        <button id="playButton" class="control-button play-button" type="button" aria-pressed="false" aria-label="Play"></button>
+        <button id="saveButton" class="control-button save-button" type="button" aria-label="Save"></button>
+        <button id="clearButton" class="control-button clear-button" type="button" aria-label="Clear"></button>
+      </footer>
+    </section>
+
+    <section id="archiveView" class="view archive-view" aria-label="archive">
+      <div id="archiveGrid" class="archive-grid"></div>
+    </section>
+  </main>
+  <div id="customCursor" class="custom-cursor" aria-hidden="true">
+    <span class="cursor-dot"></span>
+    <span class="cursor-hint">please<br />scroll</span>
+  </div>
+
+  <script src="script.js?v=20260607-v3-curation-center"></script>
+</body>
+</html>
