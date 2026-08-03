@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>soundi v5</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=20260729-v4-white-lang-slide" />
+</head>
+<body>
+  <main class="app">
+    <header class="site-header" aria-label="site header">
+      <button class="wordmark nav-button is-active" type="button" data-view="home" aria-label="soundi home">
+        soundi
+      </button>
+      <nav class="nav" aria-label="primary navigation">
+        <button class="nav-button" type="button" data-view="lesson">Lesson</button>
+        <button class="nav-button" type="button" data-view="compose">Compose</button>
+        <button class="nav-button" type="button" data-view="archive">Archive</button>
+        <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language">
+          <span class="language-rail" aria-hidden="true">
+            <span class="language-current">KOR</span>
+            <span class="language-next">ENG</span>
+          </span>
+        </button>
+      </nav>
+    </header>
+
+    <section id="homeView" class="view home-view is-active" aria-label="home">
+      <div class="hero reveal">
+        <h1>See Music.<br />Compose Visually.</h1>
+        <span class="ko-label">음악을 보고 시각적으로 작곡해요.</span>
+      </div>
+
+      <section class="tutorial" id="tutorial" aria-label="tutorial preview">
+        <article class="pitch-step reveal">
+          <div class="pitch-demo pitch-demo-high" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <p>Higher position means higher pitch.</p>
+          <span class="ko-label">위로 올라갈수록 더 높은 음이에요.</span>
+        </article>
+
+        <article class="pitch-step reveal">
+          <div class="pitch-demo pitch-demo-low" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <p>Lower position means lower pitch.</p>
+          <span class="ko-label">아래로 내려갈수록 더 낮은 음이에요.</span>
+        </article>
+
+        <article class="note-row reveal">
+          <div class="note-scale" aria-hidden="true">
+            <span style="--note:#ff3b30">C</span>
+            <span style="--note:#ff7a00">D</span>
+            <span style="--note:#ffdc21">E</span>
+            <span style="--note:#00c900">F</span>
+            <span style="--note:#65d2ee">G</span>
+            <span style="--note:#3f6df6">A</span>
+            <span style="--note:#854cf5">B</span>
+          </div>
+          <p>Each row represents a different note.</p>
+          <span class="ko-label">각 줄은 서로 다른 음을 나타내요.</span>
+        </article>
+
+        <article class="grid-explain reveal">
+          <div class="large-grid" aria-hidden="true">
+            <span class="grid-block block-green"></span>
+            <span class="grid-block block-orange"></span>
+            <span class="grid-block block-purple"></span>
+          </div>
+          <p class="grid-copy">
+            The grid shows time and pitch.<br />
+            Place blocks to compose.<br />
+          </p>
+          <span class="ko-label">그리드는 시간과 피치를 보여줘요. 블록을 놓아 작곡해요.</span>
+        </article>
+
+        <article class="ready-section reveal">
+          <p>Your composition becomes a visual rhythm.</p>
+          <span class="ko-label">내 작곡은 시각적인 리듬이 돼요.</span>
+          <button class="ready-button" type="button" data-view="compose">Ready to compose?</button>
+          <span class="ko-label">작곡하러 가요.</span>
+        </article>
+      </section>
+    </section>
+
+    <section id="lessonView" class="view lesson-view" aria-label="lesson">
+      <section class="lesson-stage" aria-label="interactive lesson">
+        <div id="lessonDemo" class="lesson-demo" data-track="pitch" data-step="0" aria-hidden="true">
+          <div class="lesson-pitch-labels">
+            <span>C5</span>
+            <span>C4</span>
+            <span>C3</span>
+          </div>
+          <div class="lesson-grid" aria-hidden="true">
+            <span class="lesson-note lesson-note-a"></span>
+            <span class="lesson-note lesson-note-b"></span>
+            <span class="lesson-note lesson-note-c"></span>
+          </div>
+          <div class="lesson-time-arrow"><span>time</span></div>
+
+          <div class="lesson-color-demo">
+            <span class="color-chip color-do">C</span>
+            <span class="color-chip color-re">D</span>
+            <span class="color-chip color-mi">E</span>
+            <span class="color-chip color-fa">F</span>
+            <span class="color-chip color-sol">G</span>
+            <span class="color-chip color-la">A</span>
+            <span class="color-chip color-si">B</span>
+          </div>
+
+          <div class="lesson-harmony-demo">
+            <div class="harmony-card harmony-card-major">
+              <span>Major</span>
+              <strong data-i18n="lessonMajorCard">Stable color set</strong>
+              <div><i></i><i></i><i></i></div>
+            </div>
+            <div class="harmony-card harmony-card-minor">
+              <span>Minor</span>
+              <strong data-i18n="lessonMinorCard">Close, darker set</strong>
+              <div><i></i><i></i><i></i></div>
+            </div>
+            <div class="harmony-card harmony-card-tension">
+              <span>Tension</span>
+              <strong data-i18n="lessonTensionCard">More contrast</strong>
+              <div><i></i><i></i><i></i></div>
+            </div>
+          </div>
+
+          <div class="lesson-rhythm-demo">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+
+          <div class="lesson-length-demo">
+            <span class="length-short"></span>
+            <span class="length-mid"></span>
+            <span class="length-long"></span>
+          </div>
+
+          <div class="lesson-feedback-demo">
+            <span class="feedback-orb"></span>
+            <p data-i18n="lessonFeedbackDemo">Visual feedback reads your composition structure.</p>
+            <div>
+              <strong data-i18n="metricPitch">Pitch Range</strong>
+              <em data-i18n="metricPitchValue">Pitch - Balanced</em>
+            </div>
+            <div>
+              <strong data-i18n="metricRhythm">Rhythm Density</strong>
+              <em data-i18n="metricRhythmValue">Rhythm - Moderate</em>
+            </div>
+          </div>
+        </div>
+
+        <aside class="lesson-side" aria-label="lesson index">
+          <div class="lesson-menu" aria-label="lesson categories">
+            <button class="lesson-card is-active" type="button" data-lesson-track="pitch">
+              <span>01</span>
+              <strong data-i18n="lessonPitchNav">Pitch</strong>
+            </button>
+            <button class="lesson-card" type="button" data-lesson-track="colorHarmony">
+              <span>02</span>
+              <strong data-i18n="lessonColorHarmonyNav">Color + Harmony</strong>
+            </button>
+            <button class="lesson-card" type="button" data-lesson-track="rhythmLength">
+              <span>03</span>
+              <strong data-i18n="lessonRhythmLengthNav">Rhythm + Length</strong>
+            </button>
+            <button class="lesson-card" type="button" data-lesson-track="feedback">
+              <span>04</span>
+              <strong data-i18n="lessonFeedbackNav">Reading Feedback</strong>
+            </button>
+          </div>
+
+          <div class="lesson-copy">
+            <p id="lessonStepLabel" class="lesson-step-label">01 / 04</p>
+            <h1 id="lessonTitle">Pitch</h1>
+            <p id="lessonText">위로 갈수록 높은 음이에요. 아래로 내려갈수록 낮은 음이에요.</p>
+          </div>
+
+          <button id="lessonStartButton" class="lesson-start-button" type="button" data-view="compose" hidden data-i18n="lessonStart">Start composing</button>
+        </aside>
+      </section>
+    </section>
+
+    <section id="composeView" class="view compose-view" aria-label="compose">
+      <section class="timebar" aria-label="time indicator">
+        <div class="time-track">
+          <span id="playhead" class="playhead"></span>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="compose-tools" aria-label="composition tools">
+          <button id="guideButton" class="tool-button is-active" type="button" aria-pressed="true" data-i18n="guideButton">Harmony Guide</button>
+          <div id="harmonyTypeControl" class="harmony-type-control">
+            <button id="harmonyTypeButton" class="tool-button harmony-type-button" type="button" aria-haspopup="true" aria-expanded="false">Major Triad</button>
+            <div id="harmonyTypeMenu" class="harmony-type-menu" role="menu" hidden>
+              <button type="button" role="menuitemradio" data-harmony-type="major" aria-checked="true" data-i18n="harmonyMajor">Major Triad</button>
+              <button type="button" role="menuitemradio" data-harmony-type="minor" aria-checked="false" data-i18n="harmonyMinor">Minor Triad</button>
+              <button type="button" role="menuitemradio" data-harmony-type="suspended" aria-checked="false" data-i18n="harmonySuspended">Suspended Chord</button>
+              <button type="button" role="menuitemradio" data-harmony-type="fifth" aria-checked="false" data-i18n="harmonyFifth">Perfect Fifth</button>
+              <button type="button" role="menuitemradio" data-harmony-type="octave" aria-checked="false" data-i18n="harmonyOctave">Octave</button>
+            </div>
+          </div>
+          <div id="tensionControl" class="harmony-type-control tension-control">
+            <button id="tensionButton" class="tool-button harmony-type-button tension-button" type="button" aria-haspopup="true" aria-expanded="false">Tension Off</button>
+            <div id="tensionMenu" class="harmony-type-menu tension-menu" role="menu" hidden>
+              <button type="button" role="menuitemradio" data-tension-type="none" aria-checked="true" data-i18n="tensionNone">Tension Off</button>
+              <button type="button" role="menuitemradio" data-tension-type="major7" aria-checked="false" data-i18n="tensionMajor7">Major 7</button>
+              <button type="button" role="menuitemradio" data-tension-type="add9" aria-checked="false" data-i18n="tensionAdd9">Add 9</button>
+            </div>
+          </div>
+          <button id="exampleButton" class="tool-button" type="button" aria-pressed="false" data-i18n="examplesButton">Examples</button>
+        </div>
+
+        <section class="composition-panel" aria-label="composition grid">
+          <div class="score-scroll">
+            <div class="score-frame">
+              <div id="pitchKeyboard" class="pitch-keyboard" aria-hidden="true"></div>
+              <div id="scoreGrid" class="score-grid"></div>
+              <div id="gridPlayhead" class="grid-playhead" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="score-quick-actions" aria-label="score quick actions">
+          <div class="zoom-controls" aria-label="score zoom controls">
+            <button id="zoomOutButton" class="zoom-button" type="button" aria-label="Zoom out">−</button>
+            <input id="zoomLabel" class="zoom-label" type="text" inputmode="numeric" value="100%" aria-label="Zoom percentage" />
+            <button id="zoomInButton" class="zoom-button" type="button" aria-label="Zoom in">+</button>
+          </div>
+          <button id="resetZoomButton" class="score-quick-button" type="button" aria-label="Reset zoom to recommended size">100%</button>
+          <button id="middleNotesButton" class="score-quick-button middle-notes-button" type="button" aria-label="Back to middle notes">Middle</button>
+        </div>
+
+        <aside class="analysis-panel" aria-label="visual analysis">
+          <div id="resizeHandle" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="resize visual feedback"></div>
+          <section id="visualStage" class="visual-stage">
+            <div id="visualTone" class="visual-tone"></div>
+            <div id="visualMarks" class="visual-marks"></div>
+            <div id="moodMetrics" class="mood-metrics" aria-hidden="true"></div>
+            <p id="visualCaption" class="visual-caption"></p>
+          </section>
+          <section id="feedbackCard" class="feedback-card"></section>
+        </aside>
+      </section>
+
+      <footer class="controlbar">
+        <div class="track-meta">
+          <span id="exampleName" class="example-name" aria-live="polite" tabindex="0"></span>
+          <span id="compositionDuration" class="composition-duration">00:00</span>
+        </div>
+        <button id="playButton" class="control-button play-button" type="button" aria-pressed="false" aria-label="Play"></button>
+        <button id="saveButton" class="control-button save-button" type="button" aria-label="Save"></button>
+        <button id="clearButton" class="control-button clear-button" type="button" aria-label="Clear"></button>
+      </footer>
+    </section>
+
+    <section id="archiveView" class="view archive-view" aria-label="archive">
+      <div id="archiveGrid" class="archive-grid"></div>
+    </section>
+  </main>
+  <div id="customCursor" class="custom-cursor" aria-hidden="true">
+    <span class="cursor-dot"></span>
+    <span class="cursor-hint">please<br />scroll</span>
+  </div>
+
+  <script src="music-analysis.js?v=20260729-v5-mood-ai"></script>
+  <script src="script.js?v=20260729-v5-mood-ai"></script>
+</body>
+</html>
