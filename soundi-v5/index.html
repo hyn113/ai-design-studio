@@ -7,7 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260729-v4-white-lang-slide" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@kfonts/line-seed-sans-kr@0.1.0/index.css" />
+  <link rel="stylesheet" href="style.css?v=20260810-v5-publish" />
 </head>
 <body>
   <main class="app">
@@ -39,16 +40,20 @@
           <div class="pitch-demo pitch-demo-high" aria-hidden="true">
             <span></span><span></span><span></span>
           </div>
-          <p>Higher position means higher pitch.</p>
-          <span class="ko-label">위로 올라갈수록 더 높은 음이에요.</span>
+          <div class="pitch-copy">
+            <p>Higher position means higher pitch.</p>
+            <span class="ko-label">위로 올라갈수록 더 높은 음이에요.</span>
+          </div>
         </article>
 
         <article class="pitch-step reveal">
           <div class="pitch-demo pitch-demo-low" aria-hidden="true">
             <span></span><span></span><span></span>
           </div>
-          <p>Lower position means lower pitch.</p>
-          <span class="ko-label">아래로 내려갈수록 더 낮은 음이에요.</span>
+          <div class="pitch-copy">
+            <p>Lower position means lower pitch.</p>
+            <span class="ko-label">아래로 내려갈수록 더 낮은 음이에요.</span>
+          </div>
         </article>
 
         <article class="note-row reveal">
@@ -61,8 +66,10 @@
             <span style="--note:#3f6df6">A</span>
             <span style="--note:#854cf5">B</span>
           </div>
-          <p>Each row represents a different note.</p>
-          <span class="ko-label">각 줄은 서로 다른 음을 나타내요.</span>
+          <div class="bilingual-copy note-copy">
+            <p>Each note is shown with its own color.</p>
+            <span class="ko-label">각 계이름은 서로 다른 색으로 표현돼요.</span>
+          </div>
         </article>
 
         <article class="grid-explain reveal">
@@ -71,18 +78,21 @@
             <span class="grid-block block-orange"></span>
             <span class="grid-block block-purple"></span>
           </div>
-          <p class="grid-copy">
-            The grid shows time and pitch.<br />
-            Place blocks to compose.<br />
-          </p>
-          <span class="ko-label">그리드는 시간과 피치를 보여줘요. 블록을 놓아 작곡해요.</span>
+          <div class="bilingual-copy grid-copy">
+            <p>
+              The grid shows time and pitch.<br />
+              Place blocks to compose.
+            </p>
+            <span class="ko-label">그리드는 시간과 높낮이를 보여줘요.<br />블록을 놓아 작곡해요.</span>
+          </div>
         </article>
 
         <article class="ready-section reveal">
-          <p>Your composition becomes a visual rhythm.</p>
-          <span class="ko-label">내 작곡은 시각적인 리듬이 돼요.</span>
-          <button class="ready-button" type="button" data-view="compose">Ready to compose?</button>
-          <span class="ko-label">작곡하러 가요.</span>
+          <div class="bilingual-copy ready-copy">
+            <p>Your composition becomes a visual rhythm.</p>
+            <span class="ko-label">눈으로 음악을 만들 수 있는 작곡탭으로 이동해보세요.</span>
+          </div>
+          <button class="ready-button" type="button" data-view="compose" data-i18n="homeReadyButton">Ready to compose?</button>
         </article>
       </section>
     </section>
@@ -236,15 +246,65 @@
           <button id="middleNotesButton" class="score-quick-button middle-notes-button" type="button" aria-label="Back to middle notes">Middle</button>
         </div>
 
+        <div id="volumeControl" class="volume-control">
+          <div id="volumePopover" class="volume-popover" hidden>
+            <input id="volumeSlider" class="volume-slider" type="range" min="0" max="100" value="100" aria-label="Volume" />
+            <span id="volumeValueLabel" class="volume-value-label">100</span>
+          </div>
+          <button id="volumeButton" class="volume-button" type="button" aria-pressed="false" aria-label="Open volume control"></button>
+        </div>
+
         <aside class="analysis-panel" aria-label="visual analysis">
           <div id="resizeHandle" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="resize visual feedback"></div>
-          <section id="visualStage" class="visual-stage">
-            <div id="visualTone" class="visual-tone"></div>
-            <div id="visualMarks" class="visual-marks"></div>
-            <div id="moodMetrics" class="mood-metrics" aria-hidden="true"></div>
-            <p id="visualCaption" class="visual-caption"></p>
-          </section>
-          <section id="feedbackCard" class="feedback-card"></section>
+          <div class="analysis-tabs" role="tablist" aria-label="feedback panels">
+            <button class="analysis-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="visualFeedbackPanel" data-analysis-tab="visual" data-i18n="analysisVisualTab">Visual</button>
+            <button class="analysis-tab" type="button" role="tab" aria-selected="false" aria-controls="aiCoachPanel" data-analysis-tab="coach" data-i18n="analysisAiTab">With AI</button>
+          </div>
+          <div class="analysis-pages">
+            <section id="visualFeedbackPanel" class="analysis-page visual-page is-active" role="tabpanel">
+              <section id="visualStage" class="visual-stage">
+                <div id="visualTone" class="visual-tone"></div>
+                <div id="visualMarks" class="visual-marks"></div>
+                <div id="moodMetrics" class="mood-metrics" aria-hidden="true"></div>
+                <p id="visualCaption" class="visual-caption"></p>
+              </section>
+            </section>
+            <section id="aiCoachPanel" class="analysis-page ai-coach-panel" role="tabpanel" hidden aria-label="soundi AI">
+              <div class="ai-coach-scroll">
+                <label class="ai-field ai-field-full">
+                  <span class="is-required" data-i18n="aiPromptLabel">작곡 의도</span>
+                  <textarea id="intentPrompt" rows="1" placeholder="예: 비 오는 날 조용한 피아노 음악" data-i18n-placeholder="aiPromptPlaceholder"></textarea>
+                  <em id="intentPromptError" class="ai-field-error" aria-live="polite"></em>
+                </label>
+                <div class="ai-select-grid">
+                  <label class="ai-field">
+                    <span data-i18n="aiStyleLabel">음악 스타일</span>
+                    <select id="intentStyle">
+                      <option value="" selected data-label-ko="선택 안 함" data-label-en="No style">선택 안 함</option>
+                      <option value="children" data-label-ko="동요" data-label-en="Children’s music">동요</option>
+                      <option value="ballad" data-label-ko="발라드" data-label-en="Ballad">발라드</option>
+                      <option value="classical" data-label-ko="클래식" data-label-en="Classical">클래식</option>
+                      <option value="soundtrack" data-label-ko="OST" data-label-en="Soundtrack">OST</option>
+                      <option value="acoustic" data-label-ko="어쿠스틱" data-label-en="Acoustic">어쿠스틱</option>
+                    </select>
+                  </label>
+                  <label class="ai-field">
+                    <span data-i18n="aiDirectionLabel">수정 방향</span>
+                    <select id="intentDirection">
+                      <option value="" selected data-label-ko="선택 안 함" data-label-en="No direction">선택 안 함</option>
+                      <option value="startFresh" data-label-ko="새로 만들기" data-label-en="Start fresh">새로 만들기</option>
+                      <option value="reduce" data-label-ko="덜어내기" data-label-en="Reduce">덜어내기</option>
+                      <option value="richer" data-label-ko="풍성하게" data-label-en="Richer">풍성하게</option>
+                      <option value="rhythm" data-label-ko="리듬 강조" data-label-en="Emphasize rhythm">리듬 강조</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <button id="aiAnalyzeButton" class="ai-analyze-button" type="button" data-i18n="aiAnalyzeButton">분석하기</button>
+              <p id="aiFormMessage" class="ai-form-message" aria-live="polite"></p>
+              <div id="aiCoachResult" class="ai-coach-result" aria-live="polite"></div>
+            </section>
+          </div>
         </aside>
       </section>
 
@@ -253,9 +313,11 @@
           <span id="exampleName" class="example-name" aria-live="polite" tabindex="0"></span>
           <span id="compositionDuration" class="composition-duration">00:00</span>
         </div>
-        <button id="playButton" class="control-button play-button" type="button" aria-pressed="false" aria-label="Play"></button>
-        <button id="saveButton" class="control-button save-button" type="button" aria-label="Save"></button>
-        <button id="clearButton" class="control-button clear-button" type="button" aria-label="Clear"></button>
+        <div class="transport-controls" aria-label="playback controls">
+          <button id="playButton" class="control-button play-button" type="button" aria-pressed="false" aria-label="Play"></button>
+          <button id="saveButton" class="control-button save-button" type="button" aria-label="Save"></button>
+          <button id="clearButton" class="control-button clear-button" type="button" aria-label="Clear"></button>
+        </div>
       </footer>
     </section>
 
@@ -268,7 +330,7 @@
     <span class="cursor-hint">please<br />scroll</span>
   </div>
 
-  <script src="music-analysis.js?v=20260729-v5-mood-ai"></script>
-  <script src="script.js?v=20260729-v5-mood-ai"></script>
+  <script src="music-analysis.js?v=20260807-volume-slider"></script>
+  <script src="script.js?v=20260810-v5-publish"></script>
 </body>
 </html>

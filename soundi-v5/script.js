@@ -23,17 +23,17 @@ const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 1.8;
 const ZOOM_STEP = 0.15;
 const HARMONY_TYPES = {
-  major: { label: { ko: '메이저 트라이어드', en: 'Major Triad' }, intervals: [4, 7], maxSuggestions: 2, maxNotes: 3 },
-  minor: { label: { ko: '마이너 트라이어드', en: 'Minor Triad' }, intervals: [3, 7], maxSuggestions: 2, maxNotes: 3 },
+  major: { label: { ko: '장3화음', en: 'Major Triad' }, intervals: [4, 7], maxSuggestions: 2, maxNotes: 3 },
+  minor: { label: { ko: '단3화음', en: 'Minor Triad' }, intervals: [3, 7], maxSuggestions: 2, maxNotes: 3 },
   suspended: { label: { ko: '서스펜디드 코드', en: 'Suspended Chord' }, intervals: [5, 7], maxSuggestions: 2, maxNotes: 3 },
-  fifth: { label: { ko: '완전 5도', en: 'Perfect Fifth' }, intervals: [7], maxSuggestions: 1, maxNotes: 2 },
+  fifth: { label: { ko: '완전5도', en: 'Perfect Fifth' }, intervals: [7], maxSuggestions: 1, maxNotes: 2 },
   octave: { label: { ko: '옥타브', en: 'Octave' }, intervals: [12], maxSuggestions: 1, maxNotes: 2 }
 };
 
 const TENSION_TYPES = {
   none: { label: { ko: '텐션 끄기', en: 'Tension Off' }, intervals: [] },
-  major7: { label: { ko: '메이저 7', en: 'Major 7' }, intervals: [11] },
-  add9: { label: { ko: '애드 9', en: 'Add 9' }, intervals: [14] }
+  major7: { label: { ko: '장7도', en: 'Major 7' }, intervals: [11] },
+  add9: { label: { ko: '부가9도', en: 'Add 9' }, intervals: [14] }
 };
 
 const intervalLabels = {
@@ -96,6 +96,11 @@ const resetZoomButton = document.getElementById('resetZoomButton');
 const playButton = document.getElementById('playButton');
 const saveButton = document.getElementById('saveButton');
 const clearButton = document.getElementById('clearButton');
+const volumeControl = document.getElementById('volumeControl');
+const volumeButton = document.getElementById('volumeButton');
+const volumePopover = document.getElementById('volumePopover');
+const volumeSlider = document.getElementById('volumeSlider');
+const volumeValueLabel = document.getElementById('volumeValueLabel');
 const middleNotesButton = document.getElementById('middleNotesButton');
 const guideButton = document.getElementById('guideButton');
 const harmonyTypeControl = document.getElementById('harmonyTypeControl');
@@ -114,7 +119,18 @@ const visualStage = document.getElementById('visualStage');
 const visualMarks = document.getElementById('visualMarks');
 const visualCaption = document.getElementById('visualCaption');
 const moodMetrics = document.getElementById('moodMetrics');
+const analysisTabs = document.querySelectorAll('[data-analysis-tab]');
+const analysisPages = document.querySelectorAll('.analysis-page');
 const feedbackCard = document.getElementById('feedbackCard');
+const intentPrompt = document.getElementById('intentPrompt');
+const intentStyle = document.getElementById('intentStyle');
+const intentDirection = document.getElementById('intentDirection');
+const aiNativeSelects = [intentStyle, intentDirection].filter(Boolean);
+const aiAnalyzeButton = document.getElementById('aiAnalyzeButton');
+const intentPromptError = document.getElementById('intentPromptError');
+const aiFormMessage = document.getElementById('aiFormMessage');
+const aiCoachResult = document.getElementById('aiCoachResult');
+const aiCoachSource = document.getElementById('aiCoachSource');
 const resizeHandle = document.getElementById('resizeHandle');
 const lessonDemo = document.getElementById('lessonDemo');
 const lessonStepLabel = document.getElementById('lessonStepLabel');
@@ -133,16 +149,24 @@ const customCursor = document.getElementById('customCursor');
 
 let composition = [];
 let audioContext = null;
+let masterGainNode = null;
+let volumeLevel = 1;
 let playTimer = null;
 let playStep = 0;
 let isPlaying = false;
+let isMuted = false;
 let isResizing = false;
+let volumeAdjustTimer = null;
 let cursorHintTimer = null;
 let controlHintExitTimer = null;
 let activeCursorHintGroup = null;
 let scoreHintTarget = null;
 let lastPointerX = 0;
 let lastPointerY = 0;
+let cursorFrame = null;
+let cursorHintFrame = null;
+let pendingScoreHintEvent = null;
+let scoreHintFrame = null;
 let archiveItems = loadArchive();
 let editingArchiveId = null;
 let playbackAnalysis = null;
@@ -167,8 +191,30 @@ let hasCenteredComposeOnEntry = false;
 let isSectionScrolling = false;
 let lessonTrack = 'pitch';
 let lessonStep = 0;
+let aiCoachStatus = 'idle';
+let aiCoachFeedback = null;
 
 const lessonTrackOrder = ['pitch', 'colorHarmony', 'rhythmLength', 'feedback'];
+
+const aiPromptExamples = {
+  ko: [
+    '예: 비 오는 날 조용한 피아노 음악',
+    '예: 밝고 짧게 움직이는 동요',
+    '예: 밤에 듣는 차분한 멜로디',
+    '예: 조금 긴장감 있는 OST',
+    '예: 따뜻하고 느린 어쿠스틱 곡',
+    '예: 가볍고 리듬이 살아있는 음악'
+  ],
+  en: [
+    'e.g. quiet piano music on a rainy day',
+    'e.g. a bright short children’s melody',
+    'e.g. a calm melody for night',
+    'e.g. a slightly tense soundtrack cue',
+    'e.g. warm and slow acoustic music',
+    'e.g. light music with a clear rhythm'
+  ]
+};
+let lastPromptExample = '';
 
 const lessonTracks = {
   pitch: {
@@ -208,24 +254,32 @@ const lessonTracks = {
 const translations = {
   ko: {
     guideButton: '화음 가이드',
-    harmonyMajor: '메이저 트라이어드',
-    harmonyMinor: '마이너 트라이어드',
+    harmonyMajor: '장3화음',
+    harmonyMinor: '단3화음',
     harmonySuspended: '서스펜디드 코드',
-    harmonyFifth: '완전 5도',
+    harmonyFifth: '완전5도',
     harmonyOctave: '옥타브',
     tensionNone: '텐션 끄기',
-    tensionMajor7: '메이저 7',
-    tensionAdd9: '애드 9',
+    tensionMajor7: '장7도',
+    tensionAdd9: '부가9도',
     examplesButton: '예시곡',
     lessonPitchNav: '음높이',
     lessonColorHarmonyNav: '색과 어울림',
     lessonRhythmLengthNav: '리듬과 길이',
     lessonFeedbackNav: '내 음악 보기',
+    homeReadyButton: '작곡하러 갈까요?',
     lessonStart: '작곡 시작하기',
     lessonMajorCard: '안정적인 색 조합',
     lessonMinorCard: '가깝고 차분한 조합',
     lessonTensionCard: '대비가 큰 조합',
     lessonFeedbackDemo: '시각 피드백은 내 음악의 구조를 읽어줘요.',
+    analysisVisualTab: '시각 피드백',
+    analysisAiTab: 'With AI',
+    aiPromptLabel: '작곡 의도',
+    aiPromptPlaceholder: '예: 비 오는 날 조용한 피아노 음악',
+    aiStyleLabel: '음악 스타일',
+    aiDirectionLabel: '수정 방향',
+    aiAnalyzeButton: '분석하기',
     metricPitch: '음높이 범위',
     metricPitchValue: '음높이 - 균형',
     metricRhythm: '리듬 밀도',
@@ -246,11 +300,19 @@ const translations = {
     lessonColorHarmonyNav: 'Color + Harmony',
     lessonRhythmLengthNav: 'Rhythm + Length',
     lessonFeedbackNav: 'Reading Feedback',
+    homeReadyButton: 'Ready to compose?',
     lessonStart: 'Start composing',
     lessonMajorCard: 'Stable color set',
     lessonMinorCard: 'Close, darker set',
     lessonTensionCard: 'More contrast',
     lessonFeedbackDemo: 'Visual feedback reads your composition structure.',
+    analysisVisualTab: 'Visual',
+    analysisAiTab: 'With AI',
+    aiPromptLabel: 'Composition prompt',
+    aiPromptPlaceholder: 'e.g. quiet piano music on a rainy day',
+    aiStyleLabel: 'Music style',
+    aiDirectionLabel: 'Edit direction',
+    aiAnalyzeButton: 'Analyze',
     metricPitch: 'Pitch Range',
     metricPitchValue: 'Pitch - Balanced',
     metricRhythm: 'Rhythm Density',
@@ -264,7 +326,9 @@ const controlIcons = {
   prev: '<svg class="is-fill-icon" viewBox="0 0 44 44" aria-hidden="true"><path d="M14 12H18V32H14Z"></path><path d="M32 12L18 22L32 32Z"></path></svg>',
   next: '<svg class="is-fill-icon" viewBox="0 0 44 44" aria-hidden="true"><path d="M26 12H30V32H26Z"></path><path d="M12 12L26 22L12 32Z"></path></svg>',
   save: '<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 10V28"></path><path d="M14 20L22 28L30 20"></path><path d="M13 34H31"></path></svg>',
-  clear: '<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M32 22C32 27.5 27.5 32 22 32C16.5 32 12 27.5 12 22C12 16.5 16.5 12 22 12C25.1 12 27.9 13.4 29.7 15.7"></path><path d="M31 10V17H24"></path></svg>'
+  clear: '<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M32 22C32 27.5 27.5 32 22 32C16.5 32 12 27.5 12 22C12 16.5 16.5 12 22 12C25.1 12 27.9 13.4 29.7 15.7"></path><path d="M31 10V17H24"></path></svg>',
+  volume: '<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M13 18H18L25 12V32L18 26H13V18Z"></path><path d="M29 18.5C30.2 20.1 30.2 23.9 29 25.5"></path><path d="M32.5 15C35.3 18.5 35.3 25.5 32.5 29"></path></svg>',
+  muted: '<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M13 18H18L25 12V32L18 26H13V18Z"></path><path d="M30 18L36 24"></path><path d="M36 18L30 24"></path></svg>'
 };
 
 const exampleCompositions = [
@@ -450,6 +514,7 @@ function setComposeZoom(nextZoom, preserveCenter = true) {
 }
 
 function handleComposeResize() {
+  resizeIntentPrompt();
   const minZoom = getMinComposeZoom();
   if (composeZoom < minZoom) {
     setComposeZoom(minZoom, false);
@@ -510,11 +575,15 @@ function getGridCellKey(noteId, step) {
 }
 
 function getGridTargetFromPointer(event) {
+  return getGridTargetFromPoint(event.clientX, event.clientY);
+}
+
+function getGridTargetFromPoint(clientX, clientY) {
   if (!scoreGrid) return null;
   const rect = scoreGrid.getBoundingClientRect();
   const cellSize = getComposeCellSize();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
   if (x < 0 || y < 0) return null;
   const step = Math.floor(x / cellSize);
   const noteIndex = Math.floor(y / cellSize);
@@ -850,6 +919,7 @@ function sortComposition() {
 }
 
 function analyzeComposition() {
+  const isEmpty = composition.length === 0;
   const moodAI = window.SoundiMoodAI?.analyzeMusicMood(composition, notes, {
     stepCount: STEP_COUNT,
     minNotesForMood: 4
@@ -858,12 +928,13 @@ function analyzeComposition() {
   const activeSteps = features.raw?.activeSteps || [...new Set(composition.map((item) => item.step))].sort((a, b) => a - b);
   const durations = features.raw?.durations || [];
   const visualState = moodAI?.visualState;
-  const paletteKey = moodAI?.primaryMood || 'calm';
+  const emptyColors = ['#ffffff', '#f8f8f8', '#efefef', '#ffffff'];
+  const paletteKey = isEmpty ? 'empty' : moodAI?.primaryMood || 'calm';
   const palette = {
     name: getMoodTypeLabel({ paletteKey, moodAI }),
-    vars: visualState?.colors?.slice(0, 3) || palettes.warm.vars,
-    marks: visualState?.colors || palettes.warm.marks,
-    sphere: visualState?.colors || palettes.warm.sphere,
+    vars: isEmpty ? emptyColors.slice(0, 3) : visualState?.colors?.slice(0, 3) || palettes.warm.vars,
+    marks: isEmpty ? emptyColors : visualState?.colors || palettes.warm.marks,
+    sphere: isEmpty ? emptyColors : visualState?.colors || palettes.warm.sphere,
     motion: {
       gradient: visualState?.gradientDuration || 10400,
       shape: visualState?.shapeDuration || 10800
@@ -871,6 +942,7 @@ function analyzeComposition() {
   };
 
   return {
+    isEmpty,
     moodAI,
     activeSteps,
     density: features.noteDensity || 0,
@@ -888,6 +960,12 @@ function analyzeComposition() {
     energy: moodAI?.energy || 0,
     tension: moodAI?.tension || 0,
     brightness: moodAI?.brightness || 0.5,
+    pitchLevel: features.averagePitch || 0.5,
+    rhythmDensity: features.rhythmicDensity || 0,
+    noteLength: features.averageDuration || 0,
+    repetitionStrength: features.repetitionStrength || 0,
+    rhythmVariation: features.rhythmVariation || 0,
+    shortNoteRatio: features.shortNoteRatio || 0,
     palette,
     paletteKey
   };
@@ -901,16 +979,13 @@ function renderAnalysis(activeStep = -1) {
     target.style.setProperty('--tone-b', toneB);
     target.style.setProperty('--tone-c', toneC);
   });
-  visualStage.style.setProperty('--focus-x', `${30 + analysis.highRatio * 48}%`);
-  visualStage.style.setProperty('--focus-y', `${68 - analysis.lowRatio * 38}%`);
-  if (analysis.moodAI?.visualState) {
-    visualStage.style.setProperty('--focus-x', analysis.moodAI.visualState.focusX);
-    visualStage.style.setProperty('--focus-y', analysis.moodAI.visualState.focusY);
-  }
+  visualStage.style.setProperty('--focus-x', '50%');
+  visualStage.style.setProperty('--focus-y', '34%');
 
   renderMoodBlob(analysis, activeStep);
   renderMoodMetrics(analysis);
   renderFeedback(analysis);
+  renderAICoachResult();
 }
 
 function renderMoodBlob(analysis, activeStep = -1) {
@@ -933,6 +1008,7 @@ function renderMoodBlob(analysis, activeStep = -1) {
     : 2;
   const chordCount = activeStep >= 0 ? composition.filter((item) => item.step === activeStep).length : analysis.chordSteps;
   const [color, color2, color3, color4] = getMoodSphereColors(analysis, averageLength, chordCount);
+  const visualMotion = getReactiveCircleMotion(analysis);
 
   blob.className = `mark mood-${analysis.paletteKey}`;
   blob.style.setProperty('--x', '50%');
@@ -941,14 +1017,58 @@ function renderMoodBlob(analysis, activeStep = -1) {
   blob.style.setProperty('--h', '248px');
   blob.style.setProperty('--rotate', '0deg');
   blob.style.setProperty('--opacity', '1');
+  blob.style.setProperty('--pitch-level', analysis.pitchLevel);
   blob.style.setProperty('--mark-color', color);
   blob.style.setProperty('--mark-color-2', color2);
   blob.style.setProperty('--mark-color-3', color3);
   blob.style.setProperty('--mark-color-4', color4);
-  blob.style.setProperty('--gradient-duration', `${analysis.moodAI?.visualState?.gradientDuration || analysis.palette.motion?.gradient || 10400}ms`);
-  blob.style.setProperty('--shape-duration', `${analysis.moodAI?.visualState?.shapeDuration || analysis.palette.motion?.shape || 10800}ms`);
-  blob.style.setProperty('--pulse-duration', `${analysis.moodAI?.visualState?.pulseDuration || 2600}ms`);
-  blob.style.setProperty('--irregularity', analysis.moodAI?.visualState?.irregularity || 0);
+  blob.style.setProperty('--surface-duration', `${visualMotion.surfaceDuration}ms`);
+  blob.style.setProperty('--shape-duration', `${visualMotion.shapeDuration}ms`);
+  blob.style.setProperty('--pulse-duration', `${visualMotion.pulseDuration}ms`);
+  blob.style.setProperty('--pulse-scale', visualMotion.pulseScale);
+  blob.style.setProperty('--outline-a', `${visualMotion.outlineA}%`);
+  blob.style.setProperty('--outline-b', `${visualMotion.outlineB}%`);
+  blob.style.setProperty('--outline-c', `${visualMotion.outlineC}%`);
+  blob.style.setProperty('--outline-d', `${visualMotion.outlineD}%`);
+  blob.style.setProperty('--surface-blur', `${visualMotion.surfaceBlur}px`);
+  blob.style.setProperty('--surface-saturate', visualMotion.surfaceSaturate);
+}
+
+function getReactiveCircleMotion(analysis) {
+  if (analysis.isEmpty) {
+    return {
+      outlineA: 50,
+      outlineB: 50,
+      outlineC: 50,
+      outlineD: 50,
+      shapeDuration: 16000,
+      surfaceDuration: 18000,
+      surfaceBlur: 34,
+      surfaceSaturate: '1.00',
+      pulseDuration: 4200,
+      pulseScale: '1.004'
+    };
+  }
+  const outlineChange = clampMetric(analysis.tension * 0.5 + analysis.rhythmVariation * 0.28 + (1 - analysis.repetitionStrength) * 0.12);
+  const surfaceActivity = clampMetric(analysis.rhythmDensity * 0.34 + analysis.rhythmVariation * 0.28 + analysis.energy * 0.26 + (1 - analysis.repetitionStrength) * 0.12);
+  const pulseAmount = clampMetric(analysis.energy * 0.58 + analysis.rhythmDensity * 0.3 + analysis.shortNoteRatio * 0.12);
+  return {
+    outlineA: Math.round(49 + outlineChange * 7),
+    outlineB: Math.round(51 - outlineChange * 6),
+    outlineC: Math.round(50 + outlineChange * 5),
+    outlineD: Math.round(50 - outlineChange * 4),
+    shapeDuration: Math.round(13000 - outlineChange * 5600),
+    surfaceDuration: Math.round(14500 - surfaceActivity * 7800),
+    surfaceBlur: Math.round(32 - surfaceActivity * 10),
+    surfaceSaturate: (1.08 + surfaceActivity * 0.34).toFixed(2),
+    pulseDuration: Math.round(3400 - pulseAmount * 1650),
+    pulseScale: (1.004 + pulseAmount * 0.028).toFixed(3)
+  };
+}
+
+function clampMetric(value) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(1, Math.max(0, value));
 }
 
 function getMoodSphereColors(analysis, sequenceLength, chordCount = 0) {
@@ -974,7 +1094,7 @@ function getMoodSphereColors(analysis, sequenceLength, chordCount = 0) {
 
 function getMappedNoteColor(note, sequenceLength, analysis) {
   let color = note.color;
-  if (note.octave <= 3) color = mixHex(color, '#111111', 0.34);
+  if (note.octave <= 3) color = mixHex(color, '#0c0c0c', 0.34);
   if (note.octave >= 5) color = mixHex(color, '#ffffff', 0.28);
   if (sequenceLength >= 4) color = mixHex(color, analysis.palette.marks[1] || color, 0.2);
   return color;
@@ -1001,75 +1121,39 @@ function renderMoodMetrics(analysis) {
   if (!moodMetrics) return;
   const metrics = getMoodMetricItems(analysis);
   moodMetrics.innerHTML = metrics.map((item) => `
-    <section class="mood-metric mood-metric-${item.position}">
+    <section class="mood-metric" style="--metric:${item.percent}%">
+      <div class="mood-meter" aria-hidden="true"><span></span></div>
       <strong>${item.title}</strong>
-      <span>${item.copy}</span>
-      <em>${item.value}</em>
     </section>
   `).join('');
 }
 
 function getMoodMetricItems(analysis) {
+  const pitchPercent = Math.round(clampMetric(analysis.pitchLevel) * 100);
+  const rhythmPercent = Math.round(clampMetric(analysis.rhythmDensity) * 100);
+  const lengthPercent = Math.round(clampMetric(analysis.noteLength) * 100);
+  const repeatPercent = Math.round(clampMetric(analysis.repetitionStrength) * 100);
+  const metric = (item) => item;
   if (currentLanguage === 'ko') {
-    const pitchCopy = analysis.highRatio > analysis.lowRatio + 0.12
-      ? '높은 음이 많아서 가볍게 떠 있는 느낌이에요.'
-      : analysis.lowRatio > analysis.highRatio + 0.12
-        ? '낮은 음이 많아서 차분하고 깊게 느껴져요.'
-        : '높은 음과 낮은 음이 균형 있게 섞여 있어요.';
-    const rhythmCopy = analysis.averageGap <= 2
-      ? '노트가 촘촘해서 움직임이 빠르게 느껴져요.'
-      : analysis.averageGap >= 5
-        ? '간격이 넓어서 여백이 크게 느껴져요.'
-        : '적당한 간격이라 흐름을 따라가기 쉬워요.';
-    const lengthCopy = analysis.averageLength >= 4
-      ? '긴 음이 많아서 부드럽게 이어져 보여요.'
-      : analysis.averageLength <= 1.5
-        ? '짧은 음이 많아서 또렷하고 가볍게 보여요.'
-        : '짧고 긴 음이 섞여 자연스럽게 흘러가요.';
-    const harmonyCopy = analysis.chordSteps >= 4
-      ? '겹친 음이 많아서 색 조합이 풍부해요.'
-      : analysis.chordSteps > 0
-        ? '함께 놓인 음이 있어 깊이가 더해져요.'
-        : '대부분 한 음씩 보여서 멜로디가 또렷해요.';
     return [
-      { position: 'top-left', title: '피치 범위', copy: pitchCopy, value: analysis.highRatio > analysis.lowRatio + 0.12 ? '피치 - 높음' : analysis.lowRatio > analysis.highRatio + 0.12 ? '피치 - 낮음' : '피치 - 균형' },
-      { position: 'top-right', title: '리듬 밀도', copy: rhythmCopy, value: analysis.averageGap <= 2 ? '리듬 - 촘촘함' : analysis.averageGap >= 5 ? '리듬 - 여백 있음' : '리듬 - 보통' },
-      { position: 'bottom-left', title: '노트 길이', copy: lengthCopy, value: analysis.averageLength >= 4 ? '길이 - 김' : analysis.averageLength <= 1.5 ? '길이 - 짧음' : '길이 - 섞임' },
-      { position: 'bottom-right', title: '화음', copy: harmonyCopy, value: analysis.chordSteps >= 4 ? '화음 - 풍부함' : analysis.chordSteps > 0 ? '화음 - 더해짐' : '화음 - 또렷함' }
+      metric({ title: '높낮이', min: '낮음', max: '높음', value: `${pitchPercent}%`, percent: pitchPercent }),
+      metric({ title: '리듬 밀도', min: '여백', max: '촘촘함', value: `${rhythmPercent}%`, percent: rhythmPercent }),
+      metric({ title: '음길이', min: '짧음', max: '김', value: `${lengthPercent}%`, percent: lengthPercent }),
+      metric({ title: '반복성', min: '변화', max: '반복', value: `${repeatPercent}%`, percent: repeatPercent })
     ];
   }
-  const pitchCopy = analysis.highRatio > analysis.lowRatio + 0.12
-    ? 'Mostly high notes; light and lifted.'
-    : analysis.lowRatio > analysis.highRatio + 0.12
-      ? 'Mostly low notes; deep and grounded.'
-      : 'High and low notes are balanced.';
-  const rhythmCopy = analysis.averageGap <= 2
-    ? 'Dense notes create active motion.'
-    : analysis.averageGap >= 5
-      ? 'Wide spacing leaves calm silence.'
-      : 'Moderate spacing keeps a steady pace.';
-  const lengthCopy = analysis.averageLength >= 4
-    ? 'Long tones feel smooth and sustained.'
-    : analysis.averageLength <= 1.5
-      ? 'Short tones feel light and crisp.'
-      : 'Mixed lengths give a natural flow.';
-  const harmonyCopy = analysis.chordSteps >= 4
-    ? 'Many stacked notes make richer color.'
-    : analysis.chordSteps > 0
-      ? 'Some harmony adds depth.'
-      : 'Mostly single notes; melody is clear.';
   return [
-    { position: 'top-left', title: 'Pitch Range', copy: pitchCopy, value: analysis.highRatio > analysis.lowRatio + 0.12 ? 'Pitch - High' : analysis.lowRatio > analysis.highRatio + 0.12 ? 'Pitch - Low' : 'Pitch - Balanced' },
-    { position: 'top-right', title: 'Rhythm Density', copy: rhythmCopy, value: analysis.averageGap <= 2 ? 'Rhythm - Dense' : analysis.averageGap >= 5 ? 'Rhythm - Spacious' : 'Rhythm - Moderate' },
-    { position: 'bottom-left', title: 'Note Length', copy: lengthCopy, value: analysis.averageLength >= 4 ? 'Length - Long' : analysis.averageLength <= 1.5 ? 'Length - Short' : 'Length - Mixed' },
-    { position: 'bottom-right', title: 'Harmony', copy: harmonyCopy, value: analysis.chordSteps >= 4 ? 'Harmony - Rich' : analysis.chordSteps > 0 ? 'Harmony - Added' : 'Harmony - Clear' }
+    metric({ title: 'Pitch', min: 'Low', max: 'High', value: `${pitchPercent}%`, percent: pitchPercent }),
+    metric({ title: 'Rhythm Density', min: 'Spacious', max: 'Dense', value: `${rhythmPercent}%`, percent: rhythmPercent }),
+    metric({ title: 'Note Length', min: 'Short', max: 'Long', value: `${lengthPercent}%`, percent: lengthPercent }),
+    metric({ title: 'Repetition', min: 'Changing', max: 'Repeating', value: `${repeatPercent}%`, percent: repeatPercent })
   ];
 }
 
 function renderFeedback(analysis) {
   if (!feedbackCard) return;
   const ai = analysis.moodAI;
-  const sentence = window.SoundiMoodAI?.createFeedbackSentence(ai, currentLanguage) || '';
+  const sentence = getConciseFeedbackSentence(analysis);
   const primary = ai?.primaryMood || 'calm';
   const secondary = ai?.secondaryMood || 'dreamy';
   const label = (mood) => window.SoundiMoodAI?.moodMeta?.[mood]?.label?.[currentLanguage] || mood;
@@ -1087,6 +1171,614 @@ function renderFeedback(analysis) {
   `;
 }
 
+function getConciseFeedbackSentence(analysis) {
+  const ai = analysis.moodAI;
+  if (!ai || ai.status !== 'ready') {
+    return currentLanguage === 'ko'
+      ? '노트를 더 놓으면 분위기를 읽을게요.'
+      : 'Add more notes to read the mood.';
+  }
+  const mood = window.SoundiMoodAI?.moodMeta?.[ai.primaryMood]?.label?.[currentLanguage] || ai.primaryMood;
+  if (currentLanguage === 'en') {
+    const reason = analysis.rhythmDensity > 0.55
+      ? 'Dense rhythm creates active motion.'
+      : analysis.noteLength > 0.48
+        ? 'Long notes make a smooth flow.'
+        : analysis.repetitionStrength > 0.55
+          ? 'Repeated patterns make the structure clear.'
+          : analysis.highRatio > analysis.lowRatio + 0.12
+            ? 'High notes make the mood feel light.'
+            : analysis.lowRatio > analysis.highRatio + 0.12
+              ? 'Low notes make the mood feel deep.'
+              : 'The pitch and rhythm stay balanced.';
+    return `${mood}. ${reason}`;
+  }
+  const reason = analysis.rhythmDensity > 0.55
+    ? '촘촘한 리듬이 움직임을 만들어요.'
+    : analysis.noteLength > 0.48
+      ? '긴 음이 부드러운 흐름을 만들어요.'
+      : analysis.repetitionStrength > 0.55
+        ? '반복 패턴이 구조를 또렷하게 해요.'
+        : analysis.highRatio > analysis.lowRatio + 0.12
+          ? '높은 음이 가벼운 인상을 만들어요.'
+          : analysis.lowRatio > analysis.highRatio + 0.12
+            ? '낮은 음이 깊은 인상을 만들어요.'
+            : '높낮이와 리듬이 균형을 이뤄요.';
+  return `${mood}. ${reason}`;
+}
+
+function getRandomPromptExample(language = currentLanguage) {
+  const examples = aiPromptExamples[language] || aiPromptExamples.ko;
+  if (!examples.length) return '';
+  if (examples.length === 1) return examples[0];
+  let next = examples[Math.floor(Math.random() * examples.length)];
+  if (next === lastPromptExample) {
+    next = examples[(examples.indexOf(next) + 1) % examples.length];
+  }
+  lastPromptExample = next;
+  return next;
+}
+
+function refreshIntentPromptPlaceholder() {
+  if (!intentPrompt) return;
+  intentPrompt.setAttribute('placeholder', getRandomPromptExample(currentLanguage));
+}
+
+function getIntentPayload() {
+  return {
+    prompt: intentPrompt?.value.trim() || '',
+    style: intentStyle?.value || '',
+    direction: intentDirection?.value || ''
+  };
+}
+
+function resizeIntentPrompt() {
+  if (!intentPrompt) return;
+  const computed = window.getComputedStyle(intentPrompt);
+  const maxHeight = Number.parseFloat(computed.maxHeight) || 112;
+  intentPrompt.style.height = 'auto';
+  const nextHeight = Math.min(intentPrompt.scrollHeight, maxHeight);
+  intentPrompt.style.height = `${nextHeight}px`;
+  intentPrompt.style.overflowY = intentPrompt.scrollHeight > maxHeight ? 'auto' : 'hidden';
+}
+
+function validateAICoachForm(showMessage = false) {
+  const intent = getIntentPayload();
+  const tooLong = intent.prompt.length > 100;
+  const hasPrompt = Boolean(intent.prompt);
+  const hasBlocks = composition.length > 0;
+  const promptField = intentPrompt?.closest('.ai-field');
+
+  promptField?.classList.toggle('is-invalid', tooLong);
+  if (intentPromptError) {
+    intentPromptError.textContent = tooLong
+      ? (currentLanguage === 'ko' ? '작곡 의도는 100자 이내로 적어주세요.' : 'Keep the prompt within 100 characters.')
+      : '';
+  }
+
+  if (aiFormMessage) {
+    aiFormMessage.textContent = '';
+    if (showMessage && !hasPrompt) {
+      aiFormMessage.textContent = currentLanguage === 'ko' ? '만들고 싶은 곡을 먼저 적어주세요.' : 'Add a composition prompt first.';
+    } else if (showMessage && !hasBlocks) {
+      aiFormMessage.textContent = currentLanguage === 'ko' ? '블록을 먼저 놓아주세요.' : 'Add at least one block first.';
+    }
+  }
+
+  return hasPrompt && hasBlocks && !tooLong;
+}
+
+function clearAICoachFormMessage() {
+  resizeIntentPrompt();
+  if (aiFormMessage) aiFormMessage.textContent = '';
+  validateAICoachForm(false);
+}
+
+function initCustomSelects() {
+  aiNativeSelects.forEach((select) => {
+    if (select.dataset.enhanced === 'true') return;
+    select.dataset.enhanced = 'true';
+    select.classList.add('native-select');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-select';
+    const button = document.createElement('button');
+    button.className = 'custom-select-button';
+    button.type = 'button';
+    button.setAttribute('aria-haspopup', 'listbox');
+    button.setAttribute('aria-expanded', 'false');
+    const menu = document.createElement('div');
+    menu.className = 'custom-select-menu';
+    menu.setAttribute('role', 'listbox');
+    menu.hidden = true;
+
+    Array.from(select.options).forEach((option) => {
+      if (option.disabled) return;
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'custom-select-option';
+      item.dataset.value = option.value;
+      item.setAttribute('role', 'option');
+      item.textContent = option.textContent;
+      menu.appendChild(item);
+    });
+
+    select.after(wrapper);
+    wrapper.append(button, menu);
+    syncCustomSelect(select);
+
+    button.addEventListener('click', () => toggleCustomSelect(select));
+    menu.addEventListener('click', (event) => {
+      const item = event.target.closest('.custom-select-option');
+      if (!item) return;
+      select.value = item.dataset.value;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      closeCustomSelect(select);
+      syncCustomSelect(select);
+    });
+    button.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowDown' && event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      openCustomSelect(select);
+    });
+    select.addEventListener('change', () => syncCustomSelect(select));
+  });
+}
+
+function getCustomSelectParts(select) {
+  const wrapper = select?.nextElementSibling?.classList?.contains('custom-select') ? select.nextElementSibling : null;
+  return {
+    wrapper,
+    button: wrapper?.querySelector('.custom-select-button'),
+    menu: wrapper?.querySelector('.custom-select-menu')
+  };
+}
+
+function syncCustomSelect(select) {
+  const { button, menu } = getCustomSelectParts(select);
+  if (!button || !menu) return;
+  const selected = select.options[select.selectedIndex];
+  button.textContent = selected?.textContent || '';
+  button.classList.toggle('is-placeholder', !select.value);
+  menu.querySelectorAll('.custom-select-option').forEach((item) => {
+    const isSelected = item.dataset.value === select.value;
+    item.classList.toggle('is-selected', isSelected);
+    item.setAttribute('aria-selected', String(isSelected));
+  });
+}
+
+function rebuildCustomSelectMenu(select) {
+  const { menu } = getCustomSelectParts(select);
+  if (!menu) return;
+  menu.replaceChildren();
+  Array.from(select.options).forEach((option) => {
+    if (option.disabled) return;
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'custom-select-option';
+    item.dataset.value = option.value;
+    item.setAttribute('role', 'option');
+    item.textContent = option.textContent;
+    menu.appendChild(item);
+  });
+}
+
+function localizeSelectOptions() {
+  aiNativeSelects.forEach((select) => {
+    Array.from(select.options).forEach((option) => {
+      const label = currentLanguage === 'ko' ? option.dataset.labelKo : option.dataset.labelEn;
+      if (label) option.textContent = label;
+    });
+    rebuildCustomSelectMenu(select);
+    syncCustomSelect(select);
+  });
+}
+
+function openCustomSelect(select) {
+  aiNativeSelects.forEach((item) => {
+    if (item !== select) closeCustomSelect(item);
+  });
+  const { wrapper, button, menu } = getCustomSelectParts(select);
+  if (!wrapper || !button || !menu) return;
+  wrapper.classList.add('is-open');
+  button.setAttribute('aria-expanded', 'true');
+  menu.hidden = false;
+}
+
+function closeCustomSelect(select) {
+  const { wrapper, button, menu } = getCustomSelectParts(select);
+  if (!wrapper || !button || !menu) return;
+  wrapper.classList.remove('is-open');
+  button.setAttribute('aria-expanded', 'false');
+  menu.hidden = true;
+}
+
+function toggleCustomSelect(select) {
+  const { wrapper } = getCustomSelectParts(select);
+  if (wrapper?.classList.contains('is-open')) closeCustomSelect(select);
+  else openCustomSelect(select);
+}
+
+function closeAllCustomSelects() {
+  aiNativeSelects.forEach(closeCustomSelect);
+}
+
+function createCoachPayload(analysis) {
+  const features = analysis.moodAI?.features || {};
+  const vat = {
+    valence: roundMetric((analysis.brightness - 0.5) * 2),
+    arousal: roundMetric((analysis.energy - 0.5) * 2),
+    tension: roundMetric((analysis.tension - 0.5) * 2)
+  };
+  const blockFeatures = {
+    pitchHeight: roundMetric(features.averagePitch || analysis.pitchLevel),
+    blockLength: roundMetric(features.averageDuration || analysis.noteLength),
+    rhythmDensity: roundMetric(features.rhythmicDensity || analysis.rhythmDensity),
+    repetition: roundMetric(features.repetitionStrength || analysis.repetitionStrength),
+    regularity: roundMetric(1 - (features.rhythmVariation || analysis.rhythmVariation || 0)),
+    pitchMotion: roundMetric(features.overallChange || 0),
+    harmonyStability: roundMetric(1 - Math.max(features.dissonance || 0, features.tension || analysis.tension || 0))
+  };
+  return {
+    language: currentLanguage,
+    intent: getIntentPayload(),
+    vat,
+    blockFeatures,
+    composition: {
+      title: compositionTitle,
+      stepCount: STEP_COUNT,
+      noteCount: features.noteCount || composition.length,
+      blockCount: features.blockCount || composition.length,
+      activeStepCount: features.activeStepCount || analysis.activeSteps.length,
+      primaryMood: analysis.moodAI?.primaryMood || analysis.paletteKey,
+      secondaryMood: analysis.moodAI?.secondaryMood || '',
+      energy: roundMetric(analysis.energy),
+      tension: roundMetric(analysis.tension),
+      brightness: roundMetric(analysis.brightness),
+      density: roundMetric(analysis.density),
+      highRatio: roundMetric(analysis.highRatio),
+      lowRatio: roundMetric(analysis.lowRatio),
+      chordRatio: roundMetric(analysis.chordRatio),
+      repetitionStrength: roundMetric(features.repetitionStrength || 0),
+      longNoteRatio: roundMetric(features.longNoteRatio || 0),
+      shortNoteRatio: roundMetric(features.shortNoteRatio || 0),
+      rhythmVariation: roundMetric(features.rhythmVariation || 0),
+      reasons: analysis.moodAI?.reasons || []
+    }
+  };
+}
+
+function roundMetric(value) {
+  return Math.round((Number(value) || 0) * 100) / 100;
+}
+
+function getIntentLabels(intent) {
+  const maps = {
+    style: {
+      children: { ko: '동요', en: 'Children’s music' },
+      ballad: { ko: '발라드', en: 'Ballad' },
+      classical: { ko: '클래식', en: 'Classical' },
+      soundtrack: { ko: 'OST', en: 'Soundtrack' },
+      acoustic: { ko: '어쿠스틱', en: 'Acoustic' }
+    },
+    direction: {
+      startFresh: { ko: '새로 만들기', en: 'Start fresh' },
+      reduce: { ko: '덜어내기', en: 'Reduce' },
+      richer: { ko: '풍성하게', en: 'Richer' },
+      rhythm: { ko: '리듬 강조', en: 'Emphasize rhythm' }
+    },
+    mood: {
+      joy: { ko: '밝은', en: 'bright' },
+      calm: { ko: '차분한', en: 'calm' },
+      sadness: { ko: '느린', en: 'slow' },
+      tension: { ko: '긴장감 있는', en: 'tense' },
+      mystery: { ko: '몽환적인', en: 'dreamy' },
+      balanced: { ko: '균형 있는', en: 'balanced' }
+    }
+  };
+  return {
+    style: localized(maps.style[intent.style]) || '',
+    direction: localized(maps.direction[intent.direction]) || '',
+    mood: localized(maps.mood[intent.promptMode]) || localized(maps.mood.balanced)
+  };
+}
+
+function createLocalCoachFeedback(payload) {
+  const { intent, composition: summary } = payload;
+  const effectiveIntent = getEffectiveIntent(intent);
+  const labels = getIntentLabels(effectiveIntent);
+  const desiredMood = {
+    joy: 'bright',
+    calm: 'calm',
+    mystery: 'dreamy',
+    tension: 'tense',
+    sadness: 'heavy',
+    balanced: summary.primaryMood
+  }[effectiveIntent.promptMode] || summary.primaryMood;
+  const moodMatch = summary.primaryMood === desiredMood ? 86 : summary.secondaryMood === desiredMood ? 72 : 60;
+  const directionBonus = effectiveIntent.direction ? 5 : 0;
+  const matchScore = Math.max(38, Math.min(96, Math.round(moodMatch + directionBonus - summary.tension * 5)));
+  const rangeStrength = summary.highRatio > summary.lowRatio + 0.12
+    ? (currentLanguage === 'ko' ? '높은 음 중심.' : 'High notes lead.')
+    : summary.lowRatio > summary.highRatio + 0.12
+      ? (currentLanguage === 'ko' ? '낮은 음 중심.' : 'Low notes lead.')
+      : (currentLanguage === 'ko' ? '높낮이 균형.' : 'Pitch is balanced.');
+  const rhythmStrength = summary.shortNoteRatio > summary.longNoteRatio
+    ? (currentLanguage === 'ko' ? '짧은 음이 움직임을 만들어요.' : 'Short notes add movement.')
+    : (currentLanguage === 'ko' ? '긴 음이 흐름을 이어요.' : 'Long notes connect the flow.');
+  const styleLine = labels.style
+    ? (currentLanguage === 'ko' ? `${labels.style} 스타일을 참고했어요.` : `${labels.style} style is referenced.`)
+    : (currentLanguage === 'ko' ? '스타일은 정하지 않았어요.' : 'No style is selected.');
+  const operations = createLocalEditOperations(effectiveIntent, summary);
+  return {
+    source: 'local',
+    matchScore,
+    summary: currentLanguage === 'ko'
+      ? `작곡 의도와 ${matchScore}% 정도 맞아요.`
+      : `The composition matches the prompt about ${matchScore}%.`,
+    strengths: [rangeStrength, rhythmStrength, styleLine],
+    structure: getLocalStructureLine(summary),
+    editSummary: getEditSummary(operations, effectiveIntent),
+    operations,
+    visualDirection: {
+      shape: summary.tension > 0.45 ? '조금 날카로운 유기적 형태' : '둥글게 흔들리는 유기적 형태',
+      color: getVisualColorSuggestion(effectiveIntent, summary),
+      motion: summary.energy > 0.55 ? '빠르게 튀는 움직임' : '천천히 번지는 움직임'
+    }
+  };
+}
+
+function getEffectiveIntent(intent) {
+  const prompt = (intent.prompt || '').toLowerCase();
+  const includesAny = (words) => words.some((word) => prompt.includes(word));
+  const next = {
+    ...intent,
+    style: intent.style || '',
+    direction: intent.direction || '',
+    promptMode: 'balanced'
+  };
+
+  if (next.style === 'children') next.promptMode = 'joy';
+  if (next.style === 'ballad' || next.style === 'acoustic') next.promptMode = 'calm';
+  if (next.style === 'soundtrack') next.promptMode = 'mystery';
+
+  if (includesAny(['조용', '차분', '잔잔', '고요', '편안', '비', 'rain', 'quiet', 'calm', 'soft'])) next.promptMode = 'calm';
+  if (includesAny(['잠', '수면', '밤', 'sleep', 'night'])) next.promptMode = 'calm';
+  if (includesAny(['슬픈', '슬픔', '외로운', '우울', 'sad', 'lonely', 'blue'])) next.promptMode = 'sadness';
+  if (includesAny(['긴장', '불안', '무서', '공포', '위험', 'tension', 'scary', 'dark'])) next.promptMode = 'tension';
+  if (includesAny(['몽환', '신비', '우주', '꿈', 'mystery', 'dream', 'space'])) next.promptMode = 'mystery';
+  if (includesAny(['신나는', '밝은', '기쁜', '활기', '빠른', '통통', 'dance', 'happy', 'bright', 'fast'])) next.promptMode = 'joy';
+
+  return next;
+}
+
+function createLocalEditOperations(intent, summary) {
+  if (isExampleMode) return [];
+  if (!composition.length || intent.direction === 'startFresh') return createSeedOperations(intent);
+  const operations = [];
+  const occupied = new Set(composition.map((item) => getGridCellKey(item.noteId, item.step)));
+  const activeSteps = [...new Set(composition.map((item) => item.step))].sort((a, b) => a - b);
+  const add = (noteId, step, length = 1) => {
+    for (let offset = 0; offset < length; offset += 1) {
+      const nextStep = step + offset;
+      const key = getGridCellKey(noteId, nextStep);
+      if (nextStep < 0 || nextStep >= STEP_COUNT || occupied.has(key)) continue;
+      occupied.add(key);
+      operations.push({ type: 'add', noteId, step: nextStep });
+    }
+  };
+  const remove = (item) => {
+    if (!item) return;
+    operations.push({ type: 'remove', noteId: item.noteId, step: item.step });
+    occupied.delete(getGridCellKey(item.noteId, item.step));
+  };
+  const fallbackStep = activeSteps[0] ?? 0;
+
+  if (intent.direction === 'reduce') {
+    composition
+      .slice()
+      .sort((a, b) => b.step - a.step)
+      .filter((_, index) => index % 2 === 0)
+      .slice(0, 8)
+      .forEach(remove);
+    return operations.slice(0, 18);
+  }
+
+  if (intent.direction === 'rhythm') {
+    [0, 4, 8, 12].forEach((offset) => add('do4', Math.min(STEP_COUNT - 1, fallbackStep + offset), 1));
+    [2, 10].forEach((offset) => add(intent.promptMode === 'joy' ? 'sol4' : 'mi4', Math.min(STEP_COUNT - 1, fallbackStep + offset), 1));
+    return operations.slice(0, 18);
+  }
+
+  if (intent.direction === 'richer') {
+    add('do4', Math.max(0, fallbackStep), 3);
+    add(intent.promptMode === 'sadness' ? 'la3' : 'mi4', Math.min(STEP_COUNT - 4, fallbackStep + 6), 4);
+    add(intent.promptMode === 'tension' ? 'si4' : 'sol4', Math.min(STEP_COUNT - 3, fallbackStep + 12), 3);
+    if (summary.chordRatio < 0.25) add(intent.promptMode === 'joy' ? 'do5' : 'mi5', Math.min(STEP_COUNT - 2, fallbackStep + 16), 2);
+    return operations.slice(0, 18);
+  }
+
+  if (intent.promptMode === 'calm' || intent.promptMode === 'sadness') {
+    add(intent.promptMode === 'sadness' ? 'la3' : 'do4', Math.max(0, fallbackStep), 3);
+    add(intent.promptMode === 'sadness' ? 'mi3' : 'sol3', Math.min(STEP_COUNT - 4, fallbackStep + 8), 4);
+  } else if (intent.promptMode === 'tension') {
+    activeSteps.slice(0, 3).forEach((step) => add('si4', step + 1, 1));
+    add('fa5', Math.min(STEP_COUNT - 1, fallbackStep + 6), 1);
+  } else if (intent.promptMode === 'mystery') {
+    add('la4', Math.min(STEP_COUNT - 2, fallbackStep + 2), 2);
+    add('si4', Math.min(STEP_COUNT - 1, fallbackStep + 7), 1);
+    if (summary.repetitionStrength < 0.45) add('mi5', Math.min(STEP_COUNT - 2, fallbackStep + 12), 2);
+  } else {
+    add('do5', Math.min(STEP_COUNT - 1, fallbackStep + 2), 1);
+    add('mi5', Math.min(STEP_COUNT - 1, fallbackStep + 4), 1);
+    add('sol5', Math.min(STEP_COUNT - 1, fallbackStep + 6), 1);
+  }
+  return operations.slice(0, 18);
+}
+
+function createSeedOperations(intent) {
+  const moodSeeds = {
+    calm: [['do4', 0, 4], ['mi4', 6, 4], ['sol4', 12, 5], ['do4', 20, 6]],
+    sadness: [['la3', 0, 5], ['do4', 7, 4], ['mi4', 14, 5], ['la3', 24, 6]],
+    mystery: [['mi4', 0, 3], ['la4', 5, 4], ['si4', 12, 2], ['mi5', 20, 4]],
+    tension: [['fa4', 0, 2], ['si4', 3, 1], ['mi5', 6, 2], ['fa5', 12, 1]],
+    joy: [['do4', 0, 1], ['mi4', 2, 1], ['sol4', 4, 1], ['do5', 8, 2], ['sol4', 12, 1]],
+    balanced: [['do4', 0, 2], ['mi4', 4, 2], ['sol4', 8, 3], ['mi4', 14, 2], ['do4', 20, 4]]
+  };
+  const styleSeeds = {
+    children: moodSeeds.joy,
+    ballad: moodSeeds.calm,
+    classical: moodSeeds.balanced,
+    soundtrack: moodSeeds.mystery,
+    acoustic: moodSeeds.calm
+  };
+  const seed = styleSeeds[intent.style] || moodSeeds[intent.promptMode] || moodSeeds.balanced;
+  return seed.flatMap(([noteId, step, length]) => Array.from({ length }, (_, offset) => ({
+    type: 'add',
+    noteId,
+    step: step + offset
+  }))).slice(0, 18);
+}
+
+function getEditSummary(operations, intent) {
+  if (!operations.length) return '';
+  const labels = getIntentLabels(intent);
+  const addCount = operations.filter((operation) => operation.type === 'add').length;
+  const removeCount = operations.filter((operation) => operation.type === 'remove').length;
+  const direction = labels.direction || (currentLanguage === 'ko' ? '작곡 의도' : 'the prompt');
+  if (currentLanguage === 'en') return `${addCount} blocks added and ${removeCount} removed with ${direction}.`;
+  return `${direction} 방향으로 ${addCount}개를 더하고 ${removeCount}개를 덜어내요.`;
+}
+
+function getLocalStructureLine(summary) {
+  if (summary.repetitionStrength > 0.58) return '반복이 구조를 잡아요.';
+  if (summary.rhythmVariation > 0.52) return '흐름 변화가 커요.';
+  if (summary.longNoteRatio > summary.shortNoteRatio) return '긴 음이 부드럽게 이어져요.';
+  return '짧은 음과 여백이 번갈아 나와요.';
+}
+
+function getVisualColorSuggestion(intent, summary) {
+  if (intent.promptMode === 'joy') return summary.brightness > 0.55 ? '노랑과 주황' : '노랑과 연한 파랑';
+  if (intent.promptMode === 'calm') return '연한 파랑과 흰색';
+  if (intent.promptMode === 'mystery') return '보라와 푸른색';
+  if (intent.promptMode === 'tension') return '보라와 붉은색';
+  if (intent.promptMode === 'sadness') return '짙은 파랑과 회색';
+  return '따뜻한 노랑과 부드러운 흰색';
+}
+
+function renderAICoachResult() {
+  if (!aiCoachResult) return;
+  if (aiCoachSource) aiCoachSource.textContent = aiCoachFeedback?.source === 'llm' ? 'llm' : 'local';
+  if (aiAnalyzeButton) aiAnalyzeButton.disabled = aiCoachStatus === 'loading';
+  if (aiCoachStatus === 'loading') {
+    aiCoachResult.innerHTML = `<p class="ai-coach-muted">${currentLanguage === 'ko' ? '분석하고 있어요...' : 'Analyzing...'}</p>`;
+    return;
+  }
+  if (!aiCoachFeedback) {
+    aiCoachResult.innerHTML = '';
+    return;
+  }
+  const feedback = aiCoachFeedback;
+  const hasOperations = Array.isArray(feedback.operations) && feedback.operations.length > 0 && !feedback.applied;
+  aiCoachResult.innerHTML = `
+    <p>${escapeHtml(feedback.summary || '')}</p>
+    <ul>
+      ${(feedback.strengths || []).slice(0, 2).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+      ${feedback.structure ? `<li>${escapeHtml(feedback.structure)}</li>` : ''}
+    </ul>
+    ${feedback.editSummary ? `
+      <div class="ai-edit-proposal">
+        <span>${currentLanguage === 'ko' ? '수정 제안' : 'Edit proposal'}</span>
+        <p>${escapeHtml(feedback.editSummary)}</p>
+        <button type="button" data-ai-action="apply-edits"${hasOperations ? '' : ' disabled'}>${feedback.applied ? (currentLanguage === 'ko' ? '적용 완료' : 'Applied') : (currentLanguage === 'ko' ? '수정 적용' : 'Apply edits')}</button>
+      </div>
+    ` : ''}
+  `;
+}
+
+function applyAICoachOperations() {
+  if (!aiCoachFeedback?.operations?.length || aiCoachFeedback.applied || isExampleMode) return;
+  const operations = sanitizeAIOperations(aiCoachFeedback.operations);
+  if (!operations.length) return;
+  if (isPlaying) stopPlayback();
+  pushUndoState();
+  lastSelectedNoteId = null;
+  lastSelectedStep = null;
+  operations.forEach((operation) => {
+    applyCellState(operation.noteId, operation.step, operation.type !== 'remove');
+  });
+  sortComposition();
+  aiCoachFeedback = {
+    ...aiCoachFeedback,
+    applied: true,
+    editSummary: currentLanguage === 'ko'
+      ? `${operations.length}개의 블록 수정안을 적용했어요.`
+      : `${operations.length} block edits applied.`
+  };
+  render();
+  renderAICoachResult();
+}
+
+function sanitizeAIOperations(operations) {
+  const safe = [];
+  const seen = new Set();
+  operations.slice(0, 24).forEach((operation) => {
+    const type = operation.type === 'remove' ? 'remove' : 'add';
+    const noteId = String(operation.noteId || '');
+    const step = Number(operation.step);
+    if (!notes.some((note) => note.id === noteId)) return;
+    if (!Number.isInteger(step) || step < 0 || step >= STEP_COUNT) return;
+    const key = `${type}:${noteId}:${step}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    safe.push({ type, noteId, step });
+  });
+  return safe;
+}
+
+function setAnalysisTab(tabName) {
+  analysisTabs.forEach((button) => {
+    const isActive = button.dataset.analysisTab === tabName;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  });
+
+  analysisPages.forEach((page) => {
+    const isActive = page.id === (tabName === 'coach' ? 'aiCoachPanel' : 'visualFeedbackPanel');
+    page.classList.toggle('is-active', isActive);
+    page.hidden = !isActive;
+  });
+}
+
+async function analyzeWithAICoach() {
+  if (!validateAICoachForm(true)) {
+    aiCoachStatus = 'idle';
+    aiCoachFeedback = null;
+    renderAICoachResult();
+    return;
+  }
+  if (aiFormMessage) aiFormMessage.textContent = '';
+  const analysis = analyzeComposition();
+  const payload = createCoachPayload(analysis);
+  aiCoachStatus = 'loading';
+  aiCoachFeedback = null;
+  renderAICoachResult();
+  const localFeedback = createLocalCoachFeedback(payload);
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw new Error('AI server unavailable');
+    const data = await response.json();
+    aiCoachFeedback = { ...localFeedback, ...data.feedback, source: 'llm' };
+  } catch (error) {
+    aiCoachFeedback = localFeedback;
+  }
+  aiCoachStatus = 'ready';
+  renderAICoachResult();
+}
+
 function getMostRepeatedNote() {
   const counts = composition.reduce((result, item) => {
     result[item.noteId] = (result[item.noteId] || 0) + 1;
@@ -1099,8 +1791,19 @@ function getMostRepeatedNote() {
 }
 
 function ensureAudio() {
-  if (!audioContext) audioContext = new AudioContext();
+  if (!audioContext) {
+    audioContext = new AudioContext();
+    masterGainNode = audioContext.createGain();
+    masterGainNode.gain.setValueAtTime(volumeLevel, audioContext.currentTime);
+    masterGainNode.connect(audioContext.destination);
+  }
   if (audioContext.state === 'suspended') audioContext.resume();
+}
+
+function syncMasterVolume() {
+  if (!masterGainNode || !audioContext) return;
+  masterGainNode.gain.cancelScheduledValues(audioContext.currentTime);
+  masterGainNode.gain.setTargetAtTime(volumeLevel, audioContext.currentTime, 0.012);
 }
 
 function getStepIntervalSeconds() {
@@ -1136,7 +1839,7 @@ function playPianoLikeNote(note, sustainSteps = 1, accidental = 0) {
   master.gain.exponentialRampToValueAtTime(outputGain * 0.72, now + 0.16);
   master.gain.setValueAtTime(outputGain * 0.72, now + Math.max(0.18, duration - 0.12));
   master.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.24);
-  filter.connect(master).connect(audioContext.destination);
+  filter.connect(master).connect(masterGainNode);
 
   const partials = isLow
     ? [
@@ -1272,10 +1975,7 @@ function stopCaptionCycle() {
 }
 
 function getMoodPhrases(analysis) {
-  const sentence = window.SoundiMoodAI?.createFeedbackSentence(analysis.moodAI, currentLanguage);
-  return [sentence || (currentLanguage === 'ko'
-    ? '노트를 조금 더 놓으면, 음역과 리듬의 구조를 바탕으로 분위기를 표현할게요.'
-    : 'Add a few more notes, and I will describe the mood from the pitch and rhythm structure.')];
+  return [getConciseFeedbackSentence(analysis)];
 }
 
 function getMoodTypeLabel(analysis) {
@@ -1490,6 +2190,12 @@ function applyLanguage(nextLanguage = currentLanguage) {
     const key = element.dataset.i18nHtml;
     if (dictionary[key] != null) element.innerHTML = dictionary[key];
   });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+    const key = element.dataset.i18nPlaceholder;
+    if (dictionary[key] != null) element.setAttribute('placeholder', dictionary[key]);
+  });
+  refreshIntentPromptPlaceholder();
+  localizeSelectOptions();
 
   if (languageToggle) {
     const currentText = currentLanguage === 'ko' ? 'KOR' : 'ENG';
@@ -1499,6 +2205,7 @@ function applyLanguage(nextLanguage = currentLanguage) {
     languageToggle.setAttribute('aria-label', currentLanguage === 'ko' ? 'Switch to English' : '한국어로 전환');
   }
   updateHarmonyTypeControls();
+  validateAICoachForm(false);
   if (playbackAnalysis) {
     renderMoodMetrics(playbackAnalysis);
     if (isPlaying) startCaptionCycle(playbackAnalysis);
@@ -1652,7 +2359,24 @@ function setCursorHintText(text) {
   const hint = customCursor?.querySelector('.cursor-hint');
   if (!hint) return;
   hint.innerHTML = text;
-  requestAnimationFrame(positionCursorHint);
+  scheduleCursorHintPosition();
+}
+
+function scheduleCursorPaint() {
+  if (cursorFrame) return;
+  cursorFrame = window.requestAnimationFrame(() => {
+    cursorFrame = null;
+    customCursor.classList.add('is-visible');
+    customCursor.style.transform = `translate3d(${lastPointerX}px, ${lastPointerY}px, 0)`;
+  });
+}
+
+function scheduleCursorHintPosition() {
+  if (cursorHintFrame) return;
+  cursorHintFrame = window.requestAnimationFrame(() => {
+    cursorHintFrame = null;
+    positionCursorHint();
+  });
 }
 
 function positionCursorHint() {
@@ -1679,11 +2403,9 @@ function initCustomCursor() {
   window.addEventListener('pointermove', (event) => {
     lastPointerX = event.clientX;
     lastPointerY = event.clientY;
-    customCursor.classList.add('is-visible');
-    customCursor.style.left = event.clientX + 'px';
-    customCursor.style.top = event.clientY + 'px';
-    positionCursorHint();
-  });
+    scheduleCursorPaint();
+    if (customCursor.classList.contains('show-hint')) scheduleCursorHintPosition();
+  }, { passive: true });
 
   window.addEventListener('pointerleave', () => {
     customCursor.classList.remove('is-visible');
@@ -1722,9 +2444,9 @@ function initCustomCursor() {
     }
   };
 
-  const scheduleScoreHint = (event) => {
-    const suggestedCell = event.target?.closest?.('.grid-cell.is-suggested');
-    const target = getGridTargetFromPointer(event);
+  const updateScoreHint = (snapshot) => {
+    const suggestedCell = snapshot.suggestedCell;
+    const target = getGridTargetFromPoint(snapshot.x, snapshot.y);
     const note = target ? notes.find((entry) => entry.id === target.noteId) : null;
     const isReferenceArea = note?.octave === 4;
     const nextTarget = suggestedCell
@@ -1747,15 +2469,15 @@ function initCustomCursor() {
     }
 
     const movement = scoreHintTarget
-      ? Math.hypot(event.clientX - scoreHintTarget.x, event.clientY - scoreHintTarget.y)
+      ? Math.hypot(snapshot.x - scoreHintTarget.x, snapshot.y - scoreHintTarget.y)
       : Infinity;
     if (scoreHintTarget?.key === nextTarget.key && movement < 4) return;
 
     window.clearTimeout(cursorHintTimer);
     scoreHintTarget = {
       ...nextTarget,
-      x: event.clientX,
-      y: event.clientY
+      x: snapshot.x,
+      y: snapshot.y
     };
     activeCursorHintGroup = nextTarget.group;
     customCursor.classList.remove('show-hint');
@@ -1767,7 +2489,22 @@ function initCustomCursor() {
     }, 1000);
   };
 
-  scoreGrid?.addEventListener('pointermove', scheduleScoreHint);
+  const scheduleScoreHint = (event) => {
+    pendingScoreHintEvent = {
+      x: event.clientX,
+      y: event.clientY,
+      suggestedCell: event.target?.closest?.('.grid-cell.is-suggested') || null
+    };
+    if (scoreHintFrame) return;
+    scoreHintFrame = window.requestAnimationFrame(() => {
+      scoreHintFrame = null;
+      const snapshot = pendingScoreHintEvent;
+      pendingScoreHintEvent = null;
+      if (snapshot) updateScoreHint(snapshot);
+    });
+  };
+
+  scoreGrid?.addEventListener('pointermove', scheduleScoreHint, { passive: true });
   scoreGrid?.addEventListener('pointerleave', resetScoreHint);
 
   window.addEventListener('scroll', updateCursorHint, { passive: true });
@@ -2063,6 +2800,48 @@ function flashControl(button) {
   window.setTimeout(() => button.classList.remove('is-feedback'), 420);
 }
 
+function syncVolumeButton() {
+  if (!volumeButton) return;
+  const volumePercent = Math.round(volumeLevel * 100);
+  isMuted = volumeLevel <= 0;
+  volumeButton.innerHTML = controlIcons[isMuted ? 'muted' : 'volume'];
+  volumeButton.setAttribute('aria-pressed', String(isMuted));
+  volumeButton.setAttribute('aria-label', 'Open volume control');
+  volumeButton.dataset.hint = isMuted ? 'sound<br />off' : 'volume';
+  volumeSlider?.style.setProperty('--volume-level', `${volumePercent}%`);
+  volumePopover?.style.setProperty('--volume-label-bottom', `${15 + volumeLevel * 82}px`);
+  if (volumeValueLabel) volumeValueLabel.textContent = String(volumePercent);
+  if (volumeSlider && Number(volumeSlider.value) !== volumePercent) {
+    volumeSlider.value = String(volumePercent);
+  }
+}
+
+function setVolumeLevel(nextLevel) {
+  volumeLevel = Math.max(0, Math.min(1, nextLevel));
+  ensureAudio();
+  syncMasterVolume();
+  syncVolumeButton();
+}
+
+function showVolumeValueLabel() {
+  if (!volumePopover) return;
+  volumePopover.classList.add('is-adjusting');
+  window.clearTimeout(volumeAdjustTimer);
+  volumeAdjustTimer = window.setTimeout(() => {
+    volumePopover.classList.remove('is-adjusting');
+  }, 620);
+}
+
+function toggleVolumePopover() {
+  if (!volumePopover) return;
+  volumePopover.hidden = !volumePopover.hidden;
+  if (!volumePopover.hidden) volumeSlider?.focus();
+}
+
+function closeVolumePopover() {
+  if (volumePopover) volumePopover.hidden = true;
+}
+
 function showPreviousExample() {
   loadExample(currentExampleIndex - 1);
 }
@@ -2152,11 +2931,41 @@ tensionMenu?.addEventListener('click', (event) => {
 });
 document.addEventListener('pointerdown', (event) => {
   if (harmonyTypeControl?.contains(event.target) || tensionControl?.contains(event.target)) return;
+  if (event.target.closest?.('.custom-select')) return;
+  if (volumeControl?.contains(event.target)) return;
+  closeVolumePopover();
+  closeAllCustomSelects();
   closeHarmonyTypeMenu();
   closeTensionMenu();
 });
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeAllCustomSelects();
+    closeVolumePopover();
+  }
+});
 exampleButton?.addEventListener('click', openExampleSongs);
+intentPrompt?.addEventListener('input', clearAICoachFormMessage);
+aiNativeSelects.forEach((select) => {
+  select.addEventListener('change', clearAICoachFormMessage);
+});
+aiAnalyzeButton?.addEventListener('click', analyzeWithAICoach);
+aiCoachResult?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-ai-action="apply-edits"]');
+  if (!button) return;
+  applyAICoachOperations();
+});
+analysisTabs.forEach((button) => {
+  button.addEventListener('click', () => setAnalysisTab(button.dataset.analysisTab));
+});
 middleNotesButton?.addEventListener('click', scrollToMiddleNotes);
+volumeButton?.addEventListener('click', toggleVolumePopover);
+volumeSlider?.addEventListener('input', () => {
+  setVolumeLevel(Number(volumeSlider.value) / 100);
+  showVolumeValueLabel();
+});
+volumeSlider?.addEventListener('pointerdown', showVolumeValueLabel);
+volumeSlider?.addEventListener('focus', showVolumeValueLabel);
 window.addEventListener('keydown', handleKeyboardShortcuts);
 scoreGrid?.addEventListener('pointerdown', beginGridDragFromEvent);
 scoreGrid?.addEventListener('pointermove', continueGridDragFromEvent);
@@ -2192,8 +3001,12 @@ sideTabButton?.addEventListener('click', openSidePanel);
 closePanelButton?.addEventListener('click', closeSidePanel);
 
 updateHarmonyTypeControls();
+initCustomSelects();
+setAnalysisTab('visual');
+resizeIntentPrompt();
 updateTitleDisplay();
 syncControlButtons();
+syncVolumeButton();
 applyLanguage('ko');
 setComposeZoom(1, false);
 render();

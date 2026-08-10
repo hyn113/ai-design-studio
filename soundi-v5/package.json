@@ -4,8 +4,10 @@
   "description": "A visual composition prototype for deaf and hard-of-hearing users.",
   "main": "script.js",
   "scripts": {
-    "start": "python3 -m http.server 8126",
-    "check": "node --check script.js && node --check music-analysis.js",
+    "start": "node server.js",
+    "serve": "node server.js",
+    "static": "python3 -m http.server 8126",
+    "check": "node --check script.js && node --check music-analysis.js && node --check server.js",
     "test": "node test/music-analysis.test.js"
   },
   "keywords": [],
