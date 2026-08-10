@@ -7,267 +7,35 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260729-v4-white-lang-slide" />
+  <style>
+    :root{--bg:#fbfcff;--ink:#252832;--muted:#8a8d98;--line:rgba(37,40,50,.08);--orange:#ff7600;--red:#ff3b30;--yellow:#ffdc21;--green:#00c900;--cyan:#65d2ee;--blue:#3f6df6;--violet:#854cf5;--soft:rgba(255,255,255,.78)}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif} button{font:inherit;cursor:pointer}
+    .site-header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:#fff;border-bottom:1px solid rgba(37,40,50,.04);position:sticky;top:0;z-index:20}.wordmark{border:0;background:transparent;color:var(--ink);font-size:14px}.nav{display:flex;gap:19px;align-items:center}.nav button{border:0;background:transparent;color:var(--muted);font-size:14px}.nav button.active{color:var(--ink)}.lang{width:38px;text-align:left;color:var(--ink)!important}
+    .view{display:none;min-height:calc(100dvh - 56px)}.view.active{display:block}.hero{min-height:calc(100dvh - 56px);display:grid;place-items:center;text-align:center;padding:60px 28px}.hero h1{margin:0;font-size:clamp(22px,4vw,54px);line-height:1.05;font-weight:500}.ko{display:block;margin-top:12px;color:var(--muted);font-size:clamp(12px,1.4vw,16px);line-height:1.45}.tutorial article{min-height:78vh;display:grid;place-items:center;text-align:center;padding:64px 24px}.pitch-demo{position:relative;width:96px;height:360px}.pitch-demo span{position:absolute;left:50%;width:58px;height:58px;border-radius:50%;background:var(--orange);transform:translateX(-50%);animation:rise 3.6s cubic-bezier(.22,1,.36,1) infinite}.pitch-demo.low span{animation-name:fall}@keyframes rise{0%{top:284px;opacity:0}18%,70%{opacity:1}72%,100%{top:10px;opacity:0}}@keyframes fall{0%{top:10px;opacity:0}18%,70%{opacity:1}72%,100%{top:284px;opacity:0}}
+    .note-scale{display:flex;gap:clamp(18px,4vw,54px);align-items:end;justify-content:center;flex-wrap:wrap}.note-scale span{display:grid;gap:12px;justify-items:center;color:var(--ink)}.note-scale span:after{content:"";width:52px;height:52px;border-radius:50%;background:var(--c)}.grid-demo{position:relative;width:min(860px,88vw);height:460px;background:linear-gradient(to right,var(--line) 1px,transparent 1px),linear-gradient(to bottom,var(--line) 1px,transparent 1px),#fff;background-size:42px 42px}.block{position:absolute;width:42px;height:42px}.b1{left:28%;top:56%;background:var(--green)}.b2{left:46%;top:34%;background:var(--orange)}.b3{left:57%;top:44%;width:84px;background:var(--violet)}.ready button{height:42px;padding:0 20px;border:1px solid var(--ink);border-radius:999px;background:var(--ink);color:#fff}
+    .lesson-stage{min-height:calc(100dvh - 56px);display:grid;grid-template-columns:minmax(180px,.72fr) minmax(0,3fr);gap:clamp(28px,5vw,72px);padding:clamp(22px,3vw,44px) clamp(26px,4vw,58px)}.lesson-menu{display:grid;gap:14px;align-content:start}.lesson-card{border:0;background:transparent;color:rgba(37,40,50,.42);text-align:left;font-size:clamp(18px,1.55vw,28px);font-weight:500}.lesson-card.active{color:var(--ink)}.lesson-copy{align-self:end}.lesson-copy p{max-width:320px;color:rgba(37,40,50,.64);line-height:1.45}.lesson-demo{position:relative;min-height:640px;background:linear-gradient(to right,var(--line) 1px,transparent 1px),linear-gradient(to bottom,var(--line) 1px,transparent 1px),#fff;background-size:48px 48px;overflow:hidden}.lesson-note{position:absolute;width:58px;height:58px;border-radius:50%;background:var(--orange)}.lesson-note.a{left:30%;top:64%;background:var(--red)}.lesson-note.b{left:48%;top:42%;background:var(--cyan)}.lesson-note.c{left:66%;top:24%;background:var(--violet)}.chips{position:absolute;inset:22%;display:flex;align-items:center;justify-content:center;gap:18px}.chip{width:64px;height:64px;border-radius:18px;background:var(--c)}
+    .compose-wrap{height:calc(100dvh - 56px);display:grid;grid-template-rows:4px 1fr 72px}.time{background:#fff}.time span{display:block;width:0;height:4px;background:var(--orange);animation:play 6s linear infinite}@keyframes play{to{width:100%}}.workspace{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,38vw);min-height:0}.score{overflow:auto;background:#fff}.score-grid{position:relative;width:1600px;height:960px;background:linear-gradient(to right,var(--line) 1px,transparent 1px),linear-gradient(to bottom,var(--line) 1px,transparent 1px);background-size:44px 44px}.cell{position:absolute;height:34px;border-radius:17px;background:var(--c);left:calc(var(--x)*44px);top:calc(var(--y)*44px);width:calc(var(--w)*44px)}.panel{display:grid;grid-template-rows:1fr auto;border-left:1px solid var(--line);background:var(--soft);backdrop-filter:blur(18px)}.orb{place-self:center;width:min(300px,32vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff 0 12%,transparent 35%),linear-gradient(135deg,#dcecff,#66d3ea,#ffb36f,#f5f6fb);filter:blur(4px);animation:pulse 4.4s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.08) rotate(12deg)}}.feedback{padding:22px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{min-height:82px;padding:14px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.56)}.metric strong{display:block;font-size:13px}.metric span{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.3}.controlbar{height:72px;display:flex;align-items:center;justify-content:center;gap:16px;background:#fff;border-top:1px solid var(--line)}.controlbar button{width:48px;height:48px;border-radius:50%;border:0;background:#f7f7f7}.play{background:var(--orange)!important;color:#fff}.archive{padding:clamp(34px,6vw,92px);background:#fff}.archive-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:36px}.cd{display:grid;place-items:center;gap:16px}.disc{width:min(250px,65vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 50%,transparent 0 16%,rgba(255,255,255,.9) 17% 21%,transparent 22%),conic-gradient(from 24deg,#fff,#c5d6de,#fff,#dcc8ff,#d2f5ff,#fff);box-shadow:inset 0 0 0 1px rgba(17,17,17,.12)}
+    @media(max-width:900px){.lesson-stage{grid-template-columns:1fr}.lesson-demo{min-height:440px}.workspace{grid-template-columns:1fr}.panel{position:absolute;right:0;top:0;bottom:0;width:min(76vw,360px)}.nav{gap:12px}.nav button{font-size:12px}}
+  </style>
 </head>
 <body>
-  <main class="app">
-    <header class="site-header" aria-label="site header">
-      <button class="wordmark nav-button is-active" type="button" data-view="home" aria-label="soundi home">
-        soundi
-      </button>
-      <nav class="nav" aria-label="primary navigation">
-        <button class="nav-button" type="button" data-view="lesson">Lesson</button>
-        <button class="nav-button" type="button" data-view="compose">Compose</button>
-        <button class="nav-button" type="button" data-view="archive">Archive</button>
-        <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language">
-          <span class="language-rail" aria-hidden="true">
-            <span class="language-current">KOR</span>
-            <span class="language-next">ENG</span>
-          </span>
-        </button>
-      </nav>
-    </header>
-
-    <section id="homeView" class="view home-view is-active" aria-label="home">
-      <div class="hero reveal">
-        <h1>See Music.<br />Compose Visually.</h1>
-        <span class="ko-label">음악을 보고 시각적으로 작곡해요.</span>
-      </div>
-
-      <section class="tutorial" id="tutorial" aria-label="tutorial preview">
-        <article class="pitch-step reveal">
-          <div class="pitch-demo pitch-demo-high" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
-          <p>Higher position means higher pitch.</p>
-          <span class="ko-label">위로 올라갈수록 더 높은 음이에요.</span>
-        </article>
-
-        <article class="pitch-step reveal">
-          <div class="pitch-demo pitch-demo-low" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
-          <p>Lower position means lower pitch.</p>
-          <span class="ko-label">아래로 내려갈수록 더 낮은 음이에요.</span>
-        </article>
-
-        <article class="note-row reveal">
-          <div class="note-scale" aria-hidden="true">
-            <span style="--note:#ff3b30">C</span>
-            <span style="--note:#ff7a00">D</span>
-            <span style="--note:#ffdc21">E</span>
-            <span style="--note:#00c900">F</span>
-            <span style="--note:#65d2ee">G</span>
-            <span style="--note:#3f6df6">A</span>
-            <span style="--note:#854cf5">B</span>
-          </div>
-          <p>Each row represents a different note.</p>
-          <span class="ko-label">각 줄은 서로 다른 음을 나타내요.</span>
-        </article>
-
-        <article class="grid-explain reveal">
-          <div class="large-grid" aria-hidden="true">
-            <span class="grid-block block-green"></span>
-            <span class="grid-block block-orange"></span>
-            <span class="grid-block block-purple"></span>
-          </div>
-          <p class="grid-copy">
-            The grid shows time and pitch.<br />
-            Place blocks to compose.<br />
-          </p>
-          <span class="ko-label">그리드는 시간과 피치를 보여줘요. 블록을 놓아 작곡해요.</span>
-        </article>
-
-        <article class="ready-section reveal">
-          <p>Your composition becomes a visual rhythm.</p>
-          <span class="ko-label">내 작곡은 시각적인 리듬이 돼요.</span>
-          <button class="ready-button" type="button" data-view="compose">Ready to compose?</button>
-          <span class="ko-label">작곡하러 가요.</span>
-        </article>
-      </section>
-    </section>
-
-    <section id="lessonView" class="view lesson-view" aria-label="lesson">
-      <section class="lesson-stage" aria-label="interactive lesson">
-        <div id="lessonDemo" class="lesson-demo" data-track="pitch" data-step="0" aria-hidden="true">
-          <div class="lesson-pitch-labels">
-            <span>C5</span>
-            <span>C4</span>
-            <span>C3</span>
-          </div>
-          <div class="lesson-grid" aria-hidden="true">
-            <span class="lesson-note lesson-note-a"></span>
-            <span class="lesson-note lesson-note-b"></span>
-            <span class="lesson-note lesson-note-c"></span>
-          </div>
-          <div class="lesson-time-arrow"><span>time</span></div>
-
-          <div class="lesson-color-demo">
-            <span class="color-chip color-do">C</span>
-            <span class="color-chip color-re">D</span>
-            <span class="color-chip color-mi">E</span>
-            <span class="color-chip color-fa">F</span>
-            <span class="color-chip color-sol">G</span>
-            <span class="color-chip color-la">A</span>
-            <span class="color-chip color-si">B</span>
-          </div>
-
-          <div class="lesson-harmony-demo">
-            <div class="harmony-card harmony-card-major">
-              <span>Major</span>
-              <strong data-i18n="lessonMajorCard">Stable color set</strong>
-              <div><i></i><i></i><i></i></div>
-            </div>
-            <div class="harmony-card harmony-card-minor">
-              <span>Minor</span>
-              <strong data-i18n="lessonMinorCard">Close, darker set</strong>
-              <div><i></i><i></i><i></i></div>
-            </div>
-            <div class="harmony-card harmony-card-tension">
-              <span>Tension</span>
-              <strong data-i18n="lessonTensionCard">More contrast</strong>
-              <div><i></i><i></i><i></i></div>
-            </div>
-          </div>
-
-          <div class="lesson-rhythm-demo">
-            <span></span><span></span><span></span><span></span><span></span>
-          </div>
-
-          <div class="lesson-length-demo">
-            <span class="length-short"></span>
-            <span class="length-mid"></span>
-            <span class="length-long"></span>
-          </div>
-
-          <div class="lesson-feedback-demo">
-            <span class="feedback-orb"></span>
-            <p data-i18n="lessonFeedbackDemo">Visual feedback reads your composition structure.</p>
-            <div>
-              <strong data-i18n="metricPitch">Pitch Range</strong>
-              <em data-i18n="metricPitchValue">Pitch - Balanced</em>
-            </div>
-            <div>
-              <strong data-i18n="metricRhythm">Rhythm Density</strong>
-              <em data-i18n="metricRhythmValue">Rhythm - Moderate</em>
-            </div>
-          </div>
-        </div>
-
-        <aside class="lesson-side" aria-label="lesson index">
-          <div class="lesson-menu" aria-label="lesson categories">
-            <button class="lesson-card is-active" type="button" data-lesson-track="pitch">
-              <span>01</span>
-              <strong data-i18n="lessonPitchNav">Pitch</strong>
-            </button>
-            <button class="lesson-card" type="button" data-lesson-track="colorHarmony">
-              <span>02</span>
-              <strong data-i18n="lessonColorHarmonyNav">Color + Harmony</strong>
-            </button>
-            <button class="lesson-card" type="button" data-lesson-track="rhythmLength">
-              <span>03</span>
-              <strong data-i18n="lessonRhythmLengthNav">Rhythm + Length</strong>
-            </button>
-            <button class="lesson-card" type="button" data-lesson-track="feedback">
-              <span>04</span>
-              <strong data-i18n="lessonFeedbackNav">Reading Feedback</strong>
-            </button>
-          </div>
-
-          <div class="lesson-copy">
-            <p id="lessonStepLabel" class="lesson-step-label">01 / 04</p>
-            <h1 id="lessonTitle">Pitch</h1>
-            <p id="lessonText">위로 갈수록 높은 음이에요. 아래로 내려갈수록 낮은 음이에요.</p>
-          </div>
-
-          <button id="lessonStartButton" class="lesson-start-button" type="button" data-view="compose" hidden data-i18n="lessonStart">Start composing</button>
-        </aside>
-      </section>
-    </section>
-
-    <section id="composeView" class="view compose-view" aria-label="compose">
-      <section class="timebar" aria-label="time indicator">
-        <div class="time-track">
-          <span id="playhead" class="playhead"></span>
-        </div>
-      </section>
-
-      <section class="workspace">
-        <div class="compose-tools" aria-label="composition tools">
-          <button id="guideButton" class="tool-button is-active" type="button" aria-pressed="true" data-i18n="guideButton">Harmony Guide</button>
-          <div id="harmonyTypeControl" class="harmony-type-control">
-            <button id="harmonyTypeButton" class="tool-button harmony-type-button" type="button" aria-haspopup="true" aria-expanded="false">Major Triad</button>
-            <div id="harmonyTypeMenu" class="harmony-type-menu" role="menu" hidden>
-              <button type="button" role="menuitemradio" data-harmony-type="major" aria-checked="true" data-i18n="harmonyMajor">Major Triad</button>
-              <button type="button" role="menuitemradio" data-harmony-type="minor" aria-checked="false" data-i18n="harmonyMinor">Minor Triad</button>
-              <button type="button" role="menuitemradio" data-harmony-type="suspended" aria-checked="false" data-i18n="harmonySuspended">Suspended Chord</button>
-              <button type="button" role="menuitemradio" data-harmony-type="fifth" aria-checked="false" data-i18n="harmonyFifth">Perfect Fifth</button>
-              <button type="button" role="menuitemradio" data-harmony-type="octave" aria-checked="false" data-i18n="harmonyOctave">Octave</button>
-            </div>
-          </div>
-          <div id="tensionControl" class="harmony-type-control tension-control">
-            <button id="tensionButton" class="tool-button harmony-type-button tension-button" type="button" aria-haspopup="true" aria-expanded="false">Tension Off</button>
-            <div id="tensionMenu" class="harmony-type-menu tension-menu" role="menu" hidden>
-              <button type="button" role="menuitemradio" data-tension-type="none" aria-checked="true" data-i18n="tensionNone">Tension Off</button>
-              <button type="button" role="menuitemradio" data-tension-type="major7" aria-checked="false" data-i18n="tensionMajor7">Major 7</button>
-              <button type="button" role="menuitemradio" data-tension-type="add9" aria-checked="false" data-i18n="tensionAdd9">Add 9</button>
-            </div>
-          </div>
-          <button id="exampleButton" class="tool-button" type="button" aria-pressed="false" data-i18n="examplesButton">Examples</button>
-        </div>
-
-        <section class="composition-panel" aria-label="composition grid">
-          <div class="score-scroll">
-            <div class="score-frame">
-              <div id="pitchKeyboard" class="pitch-keyboard" aria-hidden="true"></div>
-              <div id="scoreGrid" class="score-grid"></div>
-              <div id="gridPlayhead" class="grid-playhead" aria-hidden="true"></div>
-            </div>
-          </div>
-        </section>
-
-        <div class="score-quick-actions" aria-label="score quick actions">
-          <div class="zoom-controls" aria-label="score zoom controls">
-            <button id="zoomOutButton" class="zoom-button" type="button" aria-label="Zoom out">−</button>
-            <input id="zoomLabel" class="zoom-label" type="text" inputmode="numeric" value="100%" aria-label="Zoom percentage" />
-            <button id="zoomInButton" class="zoom-button" type="button" aria-label="Zoom in">+</button>
-          </div>
-          <button id="resetZoomButton" class="score-quick-button" type="button" aria-label="Reset zoom to recommended size">100%</button>
-          <button id="middleNotesButton" class="score-quick-button middle-notes-button" type="button" aria-label="Back to middle notes">Middle</button>
-        </div>
-
-        <aside class="analysis-panel" aria-label="visual analysis">
-          <div id="resizeHandle" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="resize visual feedback"></div>
-          <section id="visualStage" class="visual-stage">
-            <div id="visualTone" class="visual-tone"></div>
-            <div id="visualMarks" class="visual-marks"></div>
-            <div id="moodMetrics" class="mood-metrics" aria-hidden="true"></div>
-            <p id="visualCaption" class="visual-caption"></p>
-          </section>
-          <section id="feedbackCard" class="feedback-card"></section>
-        </aside>
-      </section>
-
-      <footer class="controlbar">
-        <div class="track-meta">
-          <span id="exampleName" class="example-name" aria-live="polite" tabindex="0"></span>
-          <span id="compositionDuration" class="composition-duration">00:00</span>
-        </div>
-        <button id="playButton" class="control-button play-button" type="button" aria-pressed="false" aria-label="Play"></button>
-        <button id="saveButton" class="control-button save-button" type="button" aria-label="Save"></button>
-        <button id="clearButton" class="control-button clear-button" type="button" aria-label="Clear"></button>
-      </footer>
-    </section>
-
-    <section id="archiveView" class="view archive-view" aria-label="archive">
-      <div id="archiveGrid" class="archive-grid"></div>
-    </section>
+  <header class="site-header"><button class="wordmark" data-view="home">soundi</button><nav class="nav"><button data-view="lesson">Lesson</button><button data-view="compose">Compose</button><button data-view="archive">Archive</button><button class="lang" id="lang">KOR</button></nav></header>
+  <main>
+    <section id="home" class="view active"><div class="hero"><div><h1>See Music.<br>Compose Visually.</h1><span class="ko">음악을 보고 시각적으로 작곡해요.</span></div></div><div class="tutorial"><article><div><div class="pitch-demo"><span></span></div><p>Higher position means higher pitch.</p><span class="ko">위로 올라갈수록 더 높은 음이에요.</span></div></article><article><div><div class="pitch-demo low"><span></span></div><p>Lower position means lower pitch.</p><span class="ko">아래로 내려갈수록 더 낮은 음이에요.</span></div></article><article><div class="note-scale"><span style="--c:var(--red)">C</span><span style="--c:var(--orange)">D</span><span style="--c:var(--yellow)">E</span><span style="--c:var(--green)">F</span><span style="--c:var(--cyan)">G</span><span style="--c:var(--blue)">A</span><span style="--c:var(--violet)">B</span></div><p>Each row represents a different note.</p><span class="ko">각 줄은 서로 다른 음을 나타내요.</span></article><article><div><div class="grid-demo"><span class="block b1"></span><span class="block b2"></span><span class="block b3"></span></div><p>The grid shows time and pitch. Place blocks to compose.</p><span class="ko">그리드는 시간과 피치를 보여줘요. 블록을 놓아 작곡해요.</span></div></article><article class="ready"><div><p>Your composition becomes a visual rhythm.</p><span class="ko">내 작곡은 시각적인 리듬이 돼요.</span><br><button data-view="compose">Ready to compose?</button></div></article></div></section>
+    <section id="lesson" class="view"><div class="lesson-stage"><aside><div class="lesson-menu"><button class="lesson-card active" data-lesson="pitch">Pitch</button><button class="lesson-card" data-lesson="color">Color + Harmony</button><button class="lesson-card" data-lesson="rhythm">Rhythm + Length</button><button class="lesson-card" data-lesson="feedback">Reading Feedback</button></div><div class="lesson-copy"><p id="lessonText">위아래 위치로 음의 높이를 읽어요. C4는 가운데 기준점이고, 위로 갈수록 높은 음, 아래로 갈수록 낮은 음이에요.</p></div></aside><div class="lesson-demo" id="lessonDemo"><span class="lesson-note a"></span><span class="lesson-note b"></span><span class="lesson-note c"></span></div></div></section>
+    <section id="compose" class="view"><div class="compose-wrap"><div class="time"><span></span></div><div class="workspace"><div class="score"><div class="score-grid" id="grid"></div></div><aside class="panel"><div class="orb"></div><div class="feedback"><div class="metric"><strong>Pitch Range</strong><span>Balanced vertical movement</span></div><div class="metric"><strong>Rhythm Density</strong><span>Moderate visual rhythm</span></div><div class="metric"><strong>Length</strong><span>Short and long blocks mixed</span></div><div class="metric"><strong>Harmony</strong><span>Major color set</span></div></div></aside></div><footer class="controlbar"><button id="play" class="play">▶</button><button id="save">＋</button><button id="clear">×</button></footer></div></section>
+    <section id="archive" class="view archive"><div class="archive-grid" id="archiveGrid"><div class="cd"><div class="disc"></div><strong>Untitled visual rhythm</strong><span class="ko">저장된 작곡은 이곳에 쌓여요.</span></div></div></section>
   </main>
-  <div id="customCursor" class="custom-cursor" aria-hidden="true">
-    <span class="cursor-dot"></span>
-    <span class="cursor-hint">please<br />scroll</span>
-  </div>
-
-  <script src="script.js?v=20260729-v4-white-lang-slide"></script>
+  <script>
+    const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+    function show(id){$$('.view').forEach(v=>v.classList.toggle('active',v.id===id));$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));scrollTo({top:0,behavior:'smooth'})}
+    $$('[data-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
+    const colors=['var(--red)','var(--orange)','var(--yellow)','var(--green)','var(--cyan)','var(--blue)','var(--violet)'];
+    function seed(){const g=$('#grid');g.innerHTML='';for(let i=0;i<38;i++){const c=document.createElement('span');c.className='cell';c.style.setProperty('--x',Math.floor(Math.random()*31)+1);c.style.setProperty('--y',Math.floor(Math.random()*18)+1);c.style.setProperty('--w',Math.floor(Math.random()*3)+1);c.style.setProperty('--c',colors[i%colors.length]);g.appendChild(c)}} seed();
+    $('#clear').onclick=seed; $('#save').onclick=()=>show('archive'); $('#play').onclick=e=>e.currentTarget.textContent=e.currentTarget.textContent==='▶'?'Ⅱ':'▶';
+    const lessonCopy={pitch:'위아래 위치로 음의 높이를 읽어요. C4는 가운데 기준점이고, 위로 갈수록 높은 음, 아래로 갈수록 낮은 음이에요.',color:'각 음은 고유한 색을 가지고, 여러 음을 같이 놓으면 색 조합이 생겨요.',rhythm:'가로 간격은 시간이고, 블록 길이는 음이 유지되는 시간이에요.',feedback:'오른쪽 패널은 내 음악의 구조를 원, 문장, 카드로 요약해요.'};
+    $$('[data-lesson]').forEach(b=>b.onclick=()=>{$$('[data-lesson]').forEach(x=>x.classList.toggle('active',x===b));$('#lessonText').textContent=lessonCopy[b.dataset.lesson]});
+    $('#lang').onclick=()=>{$('#lang').textContent=$('#lang').textContent==='KOR'?'ENG':'KOR'};
+  </script>
 </body>
 </html>
