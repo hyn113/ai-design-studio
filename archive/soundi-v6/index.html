@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>soundi v6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@kfonts/line-seed-sans-kr@0.1.0/index.css" />
+  <link rel="stylesheet" href="style.css?v=20260817-ai-coach-comparison-1" />
+</head>
+<body data-view="home">
+  <main class="app">
+    <header class="site-header" aria-label="site header">
+      <button class="wordmark nav-button is-active" type="button" data-view="home" aria-label="soundi home">
+        soundi
+      </button>
+      <nav class="nav" aria-label="primary navigation">
+        <button class="nav-button" type="button" data-view="lesson">Lesson</button>
+        <button class="nav-button" type="button" data-view="compose">Compose</button>
+        <button class="nav-button" type="button" data-view="archive">Archive</button>
+        <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language">
+          <span class="language-rail" aria-hidden="true">
+            <span class="language-current">KOR</span>
+            <span class="language-next">ENG</span>
+          </span>
+        </button>
+      </nav>
+    </header>
+
+    <section id="homeView" class="view home-view is-active" aria-label="home">
+      <div class="hero reveal">
+        <h1>See Music<br />Compose Visually</h1>
+        <span class="ko-label">음악을 보고 시각적으로 작곡해요.</span>
+      </div>
+
+      <section class="tutorial" id="tutorial" aria-label="tutorial preview">
+        <article class="pitch-step reveal">
+          <div class="pitch-demo pitch-demo-high" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="pitch-copy">
+            <p>Higher position means higher pitch.</p>
+            <span class="ko-label">위로 올라갈수록 더 높은 음이에요.</span>
+          </div>
+        </article>
+
+        <article class="pitch-step reveal">
+          <div class="pitch-demo pitch-demo-low" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="pitch-copy">
+            <p>Lower position means lower pitch.</p>
+            <span class="ko-label">아래로 내려갈수록 더 낮은 음이에요.</span>
+          </div>
+        </article>
+
+        <article class="note-row reveal">
+          <div class="note-scale" aria-hidden="true">
+            <span style="--note:#ff3b30" data-note-key="do">도</span>
+            <span style="--note:#ff7a00" data-note-key="re">레</span>
+            <span style="--note:#ffdc21" data-note-key="mi">미</span>
+            <span style="--note:#00c900" data-note-key="fa">파</span>
+            <span style="--note:#65d2ee" data-note-key="sol">솔</span>
+            <span style="--note:#3f6df6" data-note-key="la">라</span>
+            <span style="--note:#854cf5" data-note-key="si">시</span>
+          </div>
+          <div class="bilingual-copy note-copy">
+            <p>Each note is shown with its own color.</p>
+            <span class="ko-label">각 계이름은 서로 다른 색으로 표현돼요.</span>
+          </div>
+        </article>
+
+        <article class="grid-explain reveal">
+          <div class="large-grid" aria-hidden="true">
+            <span class="grid-block block-green"></span>
+            <span class="grid-block block-orange"></span>
+            <span class="grid-block block-purple"></span>
+          </div>
+          <div class="bilingual-copy grid-copy">
+            <p>
+              The grid shows time and pitch.<br />
+              Place blocks to compose.
+            </p>
+            <span class="ko-label">그리드는 시간과 높낮이를 보여줘요.<br />블록을 놓아 작곡해요.</span>
+          </div>
+        </article>
+
+        <article class="ready-section reveal">
+          <div class="bilingual-copy ready-copy">
+            <p>Your composition becomes a visual rhythm.</p>
+            <span class="ko-label">눈으로 음악을 만들 수 있는 작곡탭으로 이동해보세요.</span>
+          </div>
+          <button class="ready-button" type="button" data-view="compose" data-i18n="homeReadyButton">작곡하러 가기</button>
+        </article>
+      </section>
+    </section>
+
+    <section id="lessonView" class="view lesson-view" aria-label="lesson">
+      <section class="lesson-stage" aria-label="interactive lesson">
+        <div id="lessonDemo" class="lesson-demo" data-track="pitch" data-step="0">
+          <div class="lesson-pitch-labels">
+            <span>C5</span>
+            <span>C4</span>
+            <span>C3</span>
+          </div>
+          <div class="lesson-grid" aria-hidden="true">
+            <span class="lesson-note lesson-note-a"></span>
+            <span class="lesson-note lesson-note-b"></span>
+            <span class="lesson-note lesson-note-c"></span>
+          </div>
+          <div class="lesson-time-arrow"><span>time</span></div>
+
+          <div class="lesson-color-demo">
+            <button class="color-chip color-do" type="button" data-lesson-note="do4" data-note-key="do" aria-label="Play C4">도</button>
+            <button class="color-chip color-re" type="button" data-lesson-note="re4" data-note-key="re" aria-label="Play D4">레</button>
+            <button class="color-chip color-mi" type="button" data-lesson-note="mi4" data-note-key="mi" aria-label="Play E4">미</button>
+            <button class="color-chip color-fa" type="button" data-lesson-note="fa4" data-note-key="fa" aria-label="Play F4">파</button>
+            <button class="color-chip color-sol" type="button" data-lesson-note="sol4" data-note-key="sol" aria-label="Play G4">솔</button>
+            <button class="color-chip color-la" type="button" data-lesson-note="la4" data-note-key="la" aria-label="Play A4">라</button>
+            <button class="color-chip color-si" type="button" data-lesson-note="si4" data-note-key="si" aria-label="Play B4">시</button>
+          </div>
+
+          <div class="lesson-harmony-demo">
+            <div class="harmony-toolbar">
+              <button id="lessonTensionToggle" class="lesson-tension-toggle" type="button" aria-pressed="false">
+                <span class="tension-switch" aria-hidden="true"></span>
+                <span class="tension-off" data-i18n="lessonTensionToggleOff">텐션 OFF</span>
+                <span class="tension-on" data-i18n="lessonTensionToggleOn">텐션 ON</span>
+              </button>
+            </div>
+            <div class="harmony-card-list">
+              <article class="harmony-card">
+                <div class="harmony-card-copy">
+                  <span class="harmony-card-name" data-i18n="lessonHarmonyMajorName">장3화음</span>
+                  <strong data-i18n="lessonHarmonyMajorDesc">근음·장3도·완전5도로 이루어진 가장 기본적인 3음 화음이에요. 장3도가 이 화음의 장조 성격을 결정해요.</strong>
+                </div>
+                <div class="harmony-combo" aria-hidden="true">
+                  <span class="harmony-note" style="--tone:#ff3b30"><b data-note-key="do">도</b></span>
+                  <span class="harmony-note" style="--tone:#ffdc21"><b data-note-key="mi">미</b></span>
+                  <span class="harmony-note" style="--tone:#65d2ee"><b data-note-key="sol">솔</b></span>
+                </div>
+              </article>
+              <article class="harmony-card">
+                <div class="harmony-card-copy">
+                  <span class="harmony-card-name" data-i18n="lessonHarmonyMinorName">단3화음</span>
+                  <strong data-i18n="lessonHarmonyMinorDesc">근음·단3도·완전5도로 이루어진 3음 화음이에요. 장3화음의 3도를 반음 낮춘 구조라 장조와 단조의 차이를 비교하기 좋아요.</strong>
+                </div>
+                <div class="harmony-combo" aria-hidden="true">
+                  <span class="harmony-note" style="--tone:#ff7a00"><b data-note-key="re">레</b></span>
+                  <span class="harmony-note" style="--tone:#00c900"><b data-note-key="fa">파</b></span>
+                  <span class="harmony-note" style="--tone:#3f6df6"><b data-note-key="la">라</b></span>
+                </div>
+              </article>
+              <article class="harmony-card">
+                <div class="harmony-card-copy">
+                  <span class="harmony-card-name" data-i18n="lessonHarmonySuspendedName">서스펜디드</span>
+                  <strong data-i18n="lessonHarmonySuspendedDesc">장조·단조를 결정하는 3도를 빼고 완전4도를 넣은 화음이에요. 4도가 3도로 내려가며 해결되는 진행에서 자주 사용돼요.</strong>
+                </div>
+                <div class="harmony-combo" aria-hidden="true">
+                  <span class="harmony-note" style="--tone:#ffdc21"><b data-note-key="mi">미</b></span>
+                  <span class="harmony-note" style="--tone:#3f6df6"><b data-note-key="la">라</b></span>
+                  <span class="harmony-note" style="--tone:#854cf5"><b data-note-key="si">시</b></span>
+                </div>
+              </article>
+              <article class="harmony-card">
+                <div class="harmony-card-copy">
+                  <span class="harmony-card-name" data-i18n="lessonHarmonyFifthName">완전5도</span>
+                  <strong data-i18n="lessonHarmonyFifthDesc">근음과 완전5도 두 음만 쌓은 구조예요. 3도가 없어 장조·단조 성격이 정해지지 않는 중성적인 화음이에요.</strong>
+                </div>
+                <div class="harmony-combo" aria-hidden="true">
+                  <span class="harmony-note" style="--tone:#00c900"><b data-note-key="fa">파</b></span>
+                  <span class="harmony-note" style="--tone:#ff3b30"><b data-note-key="do">도</b></span>
+                </div>
+              </article>
+              <article class="harmony-card is-four is-tension-card">
+                <div class="harmony-card-copy">
+                  <span class="harmony-card-name" data-i18n="lessonMajor7Name">장7도 텐션</span>
+                  <strong data-i18n="lessonMajor7Desc">장3화음의 1·3·5도에 장7도를 더한 4음 화음이에요. 근음 바로 아래의 7도가 기본 장화음에 섬세한 긴장과 색채를 더해요.</strong>
+                </div>
+                <div class="harmony-combo" aria-hidden="true">
+                  <span class="harmony-note" style="--tone:#65d2ee"><b data-note-key="sol">솔</b></span>
+                  <span class="harmony-note" style="--tone:#854cf5"><b data-note-key="si">시</b></span>
+                  <span class="harmony-note" style="--tone:#ff7a00"><b data-note-key="re">레</b></span>
+                  <span class="harmony-note" style="--tone:#00c900"><b data-note-key="fis">파♯</b></span>
+                </div>
+              </article>
+              <article class="harmony-card is-four is-tension-card">
+                <div class="harmony-card-copy">
+                  <span class="harmony-card-name" data-i18n="lessonAdd9Name">부가9도</span>
+                  <strong data-i18n="lessonAdd9Desc">장3화음의 1·3·5도에 한 옥타브 위의 2도인 9도를 더한 화음이에요. 7도 없이 9도만 더해 기본 화음의 성격을 유지하며 음역을 넓혀요.</strong>
+                </div>
+                <div class="harmony-combo" aria-hidden="true">
+                  <span class="harmony-note" style="--tone:#3f6df6"><b data-note-key="la">라</b></span>
+                  <span class="harmony-note" style="--tone:#854cf5"><b data-note-key="si">시</b></span>
+                  <span class="harmony-note" style="--tone:#ff3b30"><b data-note-key="cis">도♯</b></span>
+                  <span class="harmony-note" style="--tone:#ffdc21"><b data-note-key="mi">미</b></span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="lesson-rhythm-demo" aria-label="rhythm and length blocks">
+            <div id="lessonRhythmGrid" class="lesson-rhythm-grid"></div>
+          </div>
+
+          <div class="lesson-feedback-demo">
+            <span id="lessonMoodOrb" class="feedback-orb mood-bright"></span>
+            <p id="lessonMoodText" data-i18n="lessonFeedbackDemo">밝고 가볍게 움직이는 분위기예요.</p>
+          </div>
+        </div>
+
+        <aside class="lesson-side" aria-label="lesson index">
+          <div class="lesson-menu" aria-label="lesson categories">
+            <button class="lesson-card is-active" type="button" data-lesson-track="pitch">
+              <span>01</span>
+              <strong data-i18n="lessonPitchNav">01 색으로 표현한 음계</strong>
+            </button>
+            <button class="lesson-card" type="button" data-lesson-track="rhythmLength">
+              <span>02</span>
+              <strong data-i18n="lessonRhythmLengthNav">02 길이로 표현한 리듬</strong>
+            </button>
+            <button class="lesson-card" type="button" data-lesson-track="colorHarmony">
+              <span>03</span>
+              <strong data-i18n="lessonColorHarmonyNav">03 겹쳐진 음의 조화</strong>
+            </button>
+            <button class="lesson-card" type="button" data-lesson-track="feedback">
+              <span>04</span>
+              <strong data-i18n="lessonFeedbackNav">04 곡의 분위기</strong>
+            </button>
+          </div>
+
+          <div class="lesson-copy">
+            <p id="lessonStepLabel" class="lesson-step-label">01 / 04</p>
+            <h1 id="lessonTitle">Pitch</h1>
+            <p id="lessonText">위로 갈수록 높은 음이에요. 아래로 내려갈수록 낮은 음이에요.</p>
+            <button id="lessonStartButton" class="lesson-start-button" type="button" data-view="compose" hidden data-i18n="lessonStart">Start composing</button>
+          </div>
+        </aside>
+      </section>
+    </section>
+
+    <section id="composeView" class="view compose-view" aria-label="compose">
+      <section class="timebar" aria-label="time indicator">
+        <div class="time-track">
+          <span id="playhead" class="playhead"></span>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="compose-tools" aria-label="composition tools">
+          <button id="guideButton" class="tool-button is-active" type="button" aria-pressed="true" data-i18n="guideButton">Harmony Guide</button>
+          <div id="harmonyTypeControl" class="harmony-type-control">
+            <button id="harmonyTypeButton" class="tool-button harmony-type-button" type="button" aria-haspopup="true" aria-expanded="false">Major Triad</button>
+            <div id="harmonyTypeMenu" class="harmony-type-menu" role="menu" hidden>
+              <button type="button" role="menuitemradio" data-harmony-type="major" aria-checked="true" data-i18n="harmonyMajor">Major Triad</button>
+              <button type="button" role="menuitemradio" data-harmony-type="minor" aria-checked="false" data-i18n="harmonyMinor">Minor Triad</button>
+              <button type="button" role="menuitemradio" data-harmony-type="suspended" aria-checked="false" data-i18n="harmonySuspended">Suspended Chord</button>
+              <button type="button" role="menuitemradio" data-harmony-type="fifth" aria-checked="false" data-i18n="harmonyFifth">Perfect Fifth</button>
+              <button type="button" role="menuitemradio" data-harmony-type="octave" aria-checked="false" data-i18n="harmonyOctave">Octave</button>
+            </div>
+          </div>
+          <div id="tensionControl" class="harmony-type-control tension-control">
+            <button id="tensionButton" class="tool-button harmony-type-button tension-button" type="button" aria-haspopup="true" aria-expanded="false">Tension Off</button>
+            <div id="tensionMenu" class="harmony-type-menu tension-menu" role="menu" hidden>
+              <button type="button" role="menuitemradio" data-tension-type="none" aria-checked="true" data-i18n="tensionNone">Tension Off</button>
+              <button type="button" role="menuitemradio" data-tension-type="major7" aria-checked="false" data-i18n="tensionMajor7">Major 7</button>
+              <button type="button" role="menuitemradio" data-tension-type="add9" aria-checked="false" data-i18n="tensionAdd9">Add 9</button>
+            </div>
+          </div>
+          <button id="exampleButton" class="tool-button" type="button" aria-pressed="false" data-i18n="examplesButton">Examples</button>
+        </div>
+
+        <section class="composition-panel" aria-label="composition grid">
+          <div class="score-scroll">
+            <div class="score-frame">
+              <div id="pitchKeyboard" class="pitch-keyboard" aria-hidden="true"></div>
+              <div id="scoreGrid" class="score-grid"></div>
+              <div id="gridPlayhead" class="grid-playhead" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="score-quick-actions" aria-label="score quick actions">
+          <div class="zoom-controls" aria-label="score zoom controls">
+            <button id="zoomOutButton" class="zoom-button" type="button" aria-label="Zoom out">−</button>
+            <input id="zoomLabel" class="zoom-label" type="text" inputmode="numeric" value="100%" aria-label="Zoom percentage" />
+            <button id="zoomInButton" class="zoom-button" type="button" aria-label="Zoom in">+</button>
+          </div>
+          <button id="resetZoomButton" class="score-quick-button" type="button" aria-label="Reset zoom to recommended size">100%</button>
+          <button id="middleNotesButton" class="score-quick-button middle-notes-button" type="button" aria-label="Back to middle notes">Middle</button>
+        </div>
+
+        <div id="volumeControl" class="volume-control">
+          <div id="volumePopover" class="volume-popover" hidden>
+            <input id="volumeSlider" class="volume-slider" type="range" min="0" max="100" value="100" aria-label="Volume" />
+            <span id="volumeValueLabel" class="volume-value-label">100</span>
+          </div>
+          <button id="volumeButton" class="volume-button" type="button" aria-pressed="false" aria-label="Open volume control"></button>
+        </div>
+
+        <aside class="analysis-panel" aria-label="my song mood">
+          <div id="resizeHandle" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="resize my song mood panel"></div>
+          <div class="analysis-tabs" role="tablist" aria-label="feedback panels">
+            <button class="analysis-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="visualFeedbackPanel" data-analysis-tab="visual" data-i18n="analysisVisualTab">내 곡의 분위기</button>
+            <button class="analysis-tab" type="button" role="tab" aria-selected="false" aria-controls="aiCoachPanel" data-analysis-tab="coach" data-i18n="analysisAiTab">With AI</button>
+          </div>
+          <div class="analysis-pages">
+            <section id="visualFeedbackPanel" class="analysis-page visual-page is-active" role="tabpanel">
+              <button id="importExampleButton" class="example-import-button" type="button" data-i18n="importExampleButton">내 곡으로 가져오기</button>
+              <section id="visualStage" class="visual-stage">
+                <div id="visualTone" class="visual-tone"></div>
+                <div id="visualMarks" class="visual-marks"></div>
+                <div id="moodMetrics" class="mood-metrics" aria-hidden="true"></div>
+                <p id="visualCaption" class="visual-caption"></p>
+              </section>
+            </section>
+            <section id="aiCoachPanel" class="analysis-page ai-coach-panel" role="tabpanel" hidden aria-label="soundi AI">
+              <div class="ai-coach-scroll">
+                <label class="ai-field ai-field-full">
+                  <span class="is-required" data-i18n="aiPromptLabel">만들고 싶은 곡</span>
+                  <textarea id="intentPrompt" rows="1" placeholder="예: 비 오는 날 조용한 피아노 음악" data-i18n-placeholder="aiPromptPlaceholder"></textarea>
+                  <em id="intentPromptError" class="ai-field-error" aria-live="polite"></em>
+                </label>
+                <div class="ai-select-grid">
+                  <label class="ai-field">
+                    <span data-i18n="aiStyleLabel">음악 스타일</span>
+                    <select id="intentStyle">
+                      <option value="" selected data-label-ko="선택 안 함" data-label-en="No style">선택 안 함</option>
+                      <option value="children" data-label-ko="동요" data-label-en="Children’s music">동요</option>
+                      <option value="ballad" data-label-ko="발라드" data-label-en="Ballad">발라드</option>
+                      <option value="classical" data-label-ko="클래식" data-label-en="Classical">클래식</option>
+                      <option value="soundtrack" data-label-ko="OST" data-label-en="Soundtrack">OST</option>
+                      <option value="acoustic" data-label-ko="어쿠스틱" data-label-en="Acoustic">어쿠스틱</option>
+                    </select>
+                  </label>
+                  <label class="ai-field">
+                    <span data-i18n="aiDirectionLabel">수정 방향</span>
+                    <select id="intentDirection">
+                      <option value="" selected data-label-ko="선택 안 함" data-label-en="No direction">선택 안 함</option>
+                      <option value="startFresh" data-label-ko="새로 만들기" data-label-en="Start fresh">새로 만들기</option>
+                      <option value="reduce" data-label-ko="덜어내기" data-label-en="Reduce">덜어내기</option>
+                      <option value="richer" data-label-ko="풍성하게" data-label-en="Richer">풍성하게</option>
+                      <option value="rhythm" data-label-ko="리듬 강조" data-label-en="Emphasize rhythm">리듬 강조</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <button id="aiAnalyzeButton" class="ai-analyze-button" type="button" data-i18n="aiAnalyzeButton">분석하기</button>
+              <p id="aiFormMessage" class="ai-form-message" aria-live="polite"></p>
+              <div id="aiCoachResult" class="ai-coach-result" aria-live="polite"></div>
+            </section>
+          </div>
+        </aside>
+      </section>
+
+      <footer class="controlbar">
+        <div class="track-meta">
+          <span id="exampleName" class="example-name" aria-live="polite" tabindex="0"></span>
+          <span id="compositionDuration" class="composition-duration">00:00</span>
+        </div>
+        <div class="transport-controls" aria-label="playback controls">
+          <button id="playButton" class="control-button play-button" type="button" aria-pressed="false" aria-label="Play"></button>
+          <button id="saveButton" class="control-button save-button" type="button" aria-label="Save"></button>
+          <button id="clearButton" class="control-button clear-button" type="button" aria-label="Clear"></button>
+        </div>
+      </footer>
+    </section>
+
+    <section id="archiveView" class="view archive-view" aria-label="archive">
+      <div id="archiveGrid" class="archive-grid"></div>
+    </section>
+  </main>
+
+  <div id="coverModal" class="cover-modal" hidden>
+    <div class="cover-backdrop" data-cover-close></div>
+    <section class="cover-dialog" role="dialog" aria-modal="true" aria-label="LP 표지 설정">
+      <button id="coverCloseButton" class="cover-close-button" type="button" aria-label="Close LP cover settings"></button>
+      <div class="cover-preview-area">
+        <div id="coverPreviewRecord" class="archive-cd cover-preview-record" aria-hidden="true"></div>
+        <label class="cover-title-field">
+          <span class="visually-hidden">곡 제목</span>
+          <input id="coverTitleInput" type="text" autocomplete="off" />
+        </label>
+      </div>
+      <div class="cover-settings">
+        <div class="cover-choice-group" aria-label="LP cover choices">
+          <span class="visually-hidden">선택지</span>
+          <div class="cover-choice-grid">
+            <button class="cover-choice cover-choice-color" type="button" data-cover-type="color" data-cover-color="#ff3b30" style="--cover-swatch:#ff3b30" aria-label="빨강"></button>
+            <button class="cover-choice cover-choice-color" type="button" data-cover-type="color" data-cover-color="#ff7a00" style="--cover-swatch:#ff7a00" aria-label="주황"></button>
+            <button class="cover-choice cover-choice-color" type="button" data-cover-type="color" data-cover-color="#ffdc21" style="--cover-swatch:#ffdc21" aria-label="노랑"></button>
+            <button class="cover-choice cover-choice-color" type="button" data-cover-type="color" data-cover-color="#00c900" style="--cover-swatch:#00c900" aria-label="초록"></button>
+            <button class="cover-choice cover-choice-color" type="button" data-cover-type="color" data-cover-color="#65d2ee" style="--cover-swatch:#65d2ee" aria-label="하늘"></button>
+            <button class="cover-choice cover-choice-color" type="button" data-cover-type="color" data-cover-color="#3f6df6" style="--cover-swatch:#3f6df6" aria-label="파랑"></button>
+            <button class="cover-choice cover-choice-color" type="button" data-cover-type="color" data-cover-color="#854cf5" style="--cover-swatch:#854cf5" aria-label="보라"></button>
+            <button class="cover-choice cover-choice-block is-selected" type="button" data-cover-type="block" aria-label="블록 기반"></button>
+            <button class="cover-choice cover-choice-image" type="button" data-cover-type="image" aria-label="이미지 업로드"></button>
+          </div>
+        </div>
+        <input id="coverImageInput" class="cover-image-input" type="file" accept="image/*" />
+        <button id="publishCoverButton" class="publish-cover-button" type="button">만든 곡 게시하기</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="customCursor" class="custom-cursor" aria-hidden="true">
+    <span class="cursor-dot"></span>
+    <span class="cursor-hint">please<br />scroll</span>
+  </div>
+
+  <script src="music-analysis.js?v=20260817-mood-copy-4"></script>
+  <script src="script.js?v=20260817-mood-feedback-1"></script>
+</body>
+</html>
